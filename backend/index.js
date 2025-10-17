@@ -24,7 +24,12 @@ const io = new Server(server, {
 
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    
+    origin: "*", // ✅ Exact origin, no wildcard
+}))
+
+
 app.use(express.json());
 configDB();
 
