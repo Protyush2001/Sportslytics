@@ -11,7 +11,16 @@ const playerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
+    email: {
+      type: String,
+      // required: true,
+      trim: true,
+      lowercase: true,
+    },
+    dob: {
+      type: Date,
+      // required: true,
+    },
     role: {
       type: String, // e.g., Batsman, Bowler, All-Rounder, Wicket-Keeper
       required: true,

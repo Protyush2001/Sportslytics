@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-// import ChatBotLauncher from "./components/ChatBotLauncher";
+import ChatBotLauncher from "./components/ChatBotLauncher";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthProvider from "./context/AuthProvider";
 
@@ -14,6 +14,7 @@ import Matches from "./pages/Matches";
 import Players from "./pages/Players";
 import Teams from "./pages/Teams";
 import Analytics from "./pages/Analytics";
+import PlayerLogin from "./pages/PlayerLogin"
 // import AdminDashboard from "./pages/AdminDashboard";
 // import Profile from "./pages/Profile";
 // import PointsTable from "./pages/PointsTable";
@@ -30,6 +31,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/player-login" element={<PlayerLogin />} />
+
 
               {/* Protected Routes */}
               <Route
@@ -77,7 +80,7 @@ function App() {
           <Footer />
         </>
       </AuthProvider>
-      {/* <ChatBotLauncher /> */}
+      <ChatBotLauncher />
     </Router>
   );
 }

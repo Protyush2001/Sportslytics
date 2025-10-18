@@ -10,6 +10,7 @@ const Player = require('../models/player-model');
 const Match = require('../models/match-model');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const authenticateUser = require('../middlewares/authenticateUser');
+const jwt = require('jsonwebtoken');
 
 // Set storage engine
 const storage = multer.diskStorage({
@@ -42,6 +43,123 @@ router.post("/", authenticateUser, upload.single('image'), async (req, res) => {
     res.status(201).json(player);
   } catch (err) {
     console.error("Error creating player:", err.message);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+const generateToken = (userId) => {
+  return jwt.sign(
+    { 
+      userId: userId,
+      role: 'player'
+    }, 
+    process.env.JWT_SECRET || 'fallback-secret-key-for-development',
+    { expiresIn: '7d' }
+  );
+};
+
+// router.post('/login', async (req, res) => {
+//   try {
+//     const { email, dob } = req.body;
+//     // const player = await Player.findOne({ email, dob });
+//     const player = await Player.findOne({      email: email.toLowerCase().trim(),
+//       dob: dob  });
+//     if (!player) {
+//       return res.status(401).json({ error: "Invalid email or date of birth" });
+//     }
+//     // Generate a token (implementation not shown)
+//     const token = generateToken(player._id);
+//     // res.json({ token });
+//     return res.status(200).json({ message: "Login successful", player, token });
+//   } catch (err) {
+//     console.error("Error logging in:", err.message);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+// Add this route to update player with email and DOB
+
+// Updated Player Login Route - FIXED for Date comparison
+router.post('/login', async (req, res) => {
+  try {
+    const { email, dob } = req.body;
+    
+    console.log("🔐 Player login attempt:", { email, dob });
+    
+    if (!email || !dob) {
+      return res.status(400).json({ error: "Email and date of birth are required" });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    
+    // Find player by email first
+    const player = await Player.findOne({ email: cleanEmail });
+
+    console.log("📊 Player found:", player ? `Yes - ${player.name}` : "No");
+
+    if (!player) {
+      return res.status(401).json({ error: "Invalid email or date of birth" });
+    }
+
+    // Handle date comparison - convert both to same format
+    const providedDOB = new Date(dob).toISOString().split('T')[0]; // "2001-07-21"
+    const storedDOB = player.dob.toISOString().split('T')[0]; // "2001-07-21"
+    
+    console.log("📅 Date comparison:", {
+      providedDOB,
+      storedDOB,
+      match: providedDOB === storedDOB
+    });
+
+    if (providedDOB !== storedDOB) {
+      return res.status(401).json({ error: "Invalid email or date of birth" });
+    }
+
+    const token = generateToken(player._id);
+
+    console.log("✅ Login successful for:", player.name);
+    
+    res.status(200).json({ 
+      message: "Login successful", 
+      token,
+      player: {
+        _id: player._id,
+        name: player.name,
+        email: player.email,
+        role: 'player'
+      }
+    });
+    
+  } catch (err) {
+    console.error("❌ Error logging in:", err.message);
+    res.status(500).json({ error: "Server error during login" });
+  }
+});
+
+router.patch('/:id/add-login-info', async (req, res) => {
+  try {
+    const { email, dob } = req.body;
+    
+    if (!email || !dob) {
+      return res.status(400).json({ error: "Email and DOB are required" });
+    }
+
+    const player = await Player.findByIdAndUpdate(
+      req.params.id,
+      { 
+        email: email.toLowerCase().trim(),
+        dob: dob
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!player) {
+      return res.status(404).json({ error: "Player not found" });
+    }
+
+    res.json({ message: "Login info added successfully", player });
+  } catch (err) {
+    console.error("Error adding login info:", err);
     res.status(400).json({ error: err.message });
   }
 });
@@ -102,7 +220,7 @@ router.get("/", authenticateUser, async (req, res) => {
 // routes/playerRoutes.js
 
 
-router.get("/players/unassigned", authenticateUser, async (req, res) => {
+router.get("/unassigned", authenticateUser, async (req, res) => {
   try {
     const unassignedPlayers = await Player.find({ teamId: null });
     res.status(200).json(unassignedPlayers);
