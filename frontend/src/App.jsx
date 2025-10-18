@@ -15,9 +15,9 @@ import Players from "./pages/Players";
 import Teams from "./pages/Teams";
 import Analytics from "./pages/Analytics";
 import PlayerLogin from "./pages/PlayerLogin"
-// import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 // import Profile from "./pages/Profile";
-// import PointsTable from "./pages/PointsTable";
+import PointsTable from "./pages/PointsTable";
 
 function App() {
   return (
@@ -71,10 +71,10 @@ function App() {
                 }
               />
 
-              {/* Future routes */}
-              {/* <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} /> */}
+              
+              <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
               {/* <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */}
-              {/* <Route path="/points-table" element={<ProtectedRoute><PointsTable /></ProtectedRoute>} /> */}
+              <Route path="/points-table" element={<ProtectedRoute><PointsTable /></ProtectedRoute>} />
             </Routes>
           </div>
           <Footer />

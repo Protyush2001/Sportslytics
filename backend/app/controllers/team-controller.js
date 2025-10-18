@@ -269,10 +269,13 @@ teamCtlr.getPointsTable = async (req, res) => {
       .select('name matchesPlayed wins losses points')
       .sort({ points: -1, wins: -1 }) // Sort by points desc, then wins desc
       .lean();
+      if(!teams){
+        return res.status(404).json({error:"No teams found"});
+      }
     
     res.status(200).json(teams);
   } catch (err) {
-    console.error('Error fetching points table:', err);
+    console.log('Error fetching points table:', err);
     res.status(500).json({ error: 'Failed to fetch points table' });
   }
 };
