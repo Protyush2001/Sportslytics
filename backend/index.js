@@ -5,6 +5,10 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 const configDB = require('./config/db');
 const userController = require('./app/controllers/user-controller');
@@ -15,70 +19,192 @@ const adminRoutes = require('./app/routes/adminRoutes');
 const customMatchController = require('./app/controllers/matchController');
 const predictionRoutes = require('./app/routes/predictionRoutes');
 const paymentRoute = require('./app/routes/paymentRoute');
-const registerChatbotHandlers = require("./app/chatbot/chatbotSocket"); 
+const registerChatbotHandlers = require("./app/chatbot/chatbotSocket");
+const customMatch = require('./app/models/customMatch-model');
+
 const app = express();
-const server = http.createServer(app); 
+const server = http.createServer(app);
+const uploadsDir = path.join(__dirname, 'uploads/Recordings/');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Created uploads/recordings directory');
+}
+
+// ADD MULTER CONFIGURATION for video uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir)
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `recording_${Date.now()}_${uuidv4()}.webm`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 500 * 1024 * 1024, // 500MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only video files are allowed!'), false);
+    }
+  }
+});
+
+
+// ADVANCED SOCKET.IO CONFIGURATION (same as working version)
 const io = new Server(server, {
   cors: {
-    origin: '*', 
-    methods: ['GET', 'POST','PATCH','DELETE','PUT']
-  }
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "http://127.0.0.1:5173",
+      "http://localhost:5174"
+    ],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+  },
+  transports: ["polling", "websocket"],
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  maxHttpBufferSize: 1e6,
 });
 
 const port = process.env.PORT || 3000;
 
-app.use(cors({
-    origin: "*", 
-}))
-
+// Middleware
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 configDB();
 
-registerChatbotHandlers(io);
 
-// Socket.io connection for live matches
 io.on('connection', (socket) => {
-  console.log('Socket connected:', socket.id);
+  console.log(' Socket connected:', socket.id);
 
-  // Example: broadcast live commentary
-  socket.on('sendCommentary', (data) => {
-    io.emit('receiveCommentary', data);
+  // --- Room joining ---
+  socket.on('join_match', (matchId) => {
+    socket.join(`match_${matchId}`);
+    console.log(`Socket ${socket.id} joined room match_${matchId}`);
   });
 
-  // Example: live score update
+  socket.on('leave_match', (matchId) => {
+    socket.leave(`match_${matchId}`);
+    console.log(` Socket ${socket.id} left room match_${matchId}`);
+  });
+
+  // --- WebRTC signaling for streaming ---
+  socket.on('offer', ({ to, sdp }) => {
+    socket.to(to).emit('offer', { from: socket.id, sdp });
+  });
+
+  socket.on('answer', ({ to, sdp }) => {
+    socket.to(to).emit('answer', { from: socket.id, sdp });
+  });
+
+  socket.on('ice-candidate', ({ to, candidate }) => {
+    socket.to(to).emit('ice-candidate', { from: socket.id, candidate });
+  });
+
+  socket.on('stream-ended', (data) => {
+    socket.to(`match_${data.matchId}`).emit('stream-ended', data);
+  });
+
+  // --- Live Commentary ---
+  socket.on('sendCommentary', ({ matchId, commentary }) => {
+    console.log(` Commentary for match ${matchId}: ${commentary}`);
+    io.to(`match_${matchId}`).emit('receiveCommentary', commentary);
+  });
+
+  // --- Live Score Update ---
   socket.on('updateScore', (scoreData) => {
     io.emit('scoreUpdated', scoreData);
   });
 
   socket.on('disconnect', () => {
-    console.log('Socket disconnected:', socket.id);
+    console.log(' Socket disconnected:', socket.id);
   });
 });
 
-// admin routes --
+registerChatbotHandlers(io);
+
+
 app.use('/admin', adminRoutes);
 
-// User routes
 app.post('/register', userController.register);
 app.post('/login', userController.login);
-// app.get('/users/account', authenticateUser, userController.account);
 
-// Match routes
+
 app.post('/matches', authenticateUser, customMatchController.createMatches);
 app.get('/getAllMatches', customMatchController.getAllMatches);
 app.patch('/matches/:id/ball', customMatchController.updateBall);
 
-// Prediction routes
+
+///////
+app.post('/api/matches/:matchId/uploadRecording', 
+  authenticateUser, 
+  upload.single('recording'), 
+  customMatchController.uploadRecording
+);
+
+
+app.get('/api/matches/:matchId/commentary', async (req, res) => {
+  try {
+    const match = await customMatch.findById(req.params.matchId)
+      .select('commentary')
+      .sort({ 'commentary.timestamp': -1 })
+      .limit(100); // Last 100 balls
+    
+    if (!match) {
+      return res.status(404).json({ msg: 'Match not found' });
+    }
+    
+    res.json(match.commentary || []);
+  } catch (error) {
+    console.error('Error fetching commentary:', error);
+    res.status(500).json({ msg: 'Error fetching commentary' });
+  }
+});
+
+
+app.post('/api/matches/:matchId/start-stream', authenticateUser, customMatchController.startStream);
+app.post('/api/matches/:matchId/stop-stream', authenticateUser, customMatchController.stopStream);
+app.post('/api/matches/:matchId/matchResult',authenticateUser,customMatchController.updateMatchResult)
+
+
 app.use('/api/predictions', predictionRoutes);
 
-// Player and team routes
 app.use('/api/players', playerRoutes);
 app.use('/api/teams', teamRoutes);
+
+// --- Payment Route ---
 app.use('/api/payment', paymentRoute);
 
+// --- Static File Serving (for uploads) ---
 app.use('/uploads', express.static('uploads'));
 
-// Start server
+// --- Health Check Routes ---
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    socketConnections: io.engine.clientsCount
+  });
+});
+
+app.get('/socket-health', (req, res) => {
+  res.json({
+    status: 'OK',
+    connectedClients: io.engine.clientsCount,
+    transports: ['polling', 'websocket'],
+    timestamp: new Date().toISOString()
+  });
+});
+
+// --- Server Start ---
 server.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(` Server running on port ${port}`);
+  console.log(`Socket.IO active at http://localhost:${port}/socket.io/`);
 });

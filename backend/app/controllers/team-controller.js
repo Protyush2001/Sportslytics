@@ -252,33 +252,43 @@ teamCtlr.addPlayersToTeam = async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 };
-
-// teamCtlr.getPointsTable = async (req, res) => {
-//   try {
-//     const teams = await Team.find().select('name matchesPlayed wins losses points').lean();
-//     res.status(200).json(teams);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
-// Fixed Team Controller - getPointsTable
 teamCtlr.getPointsTable = async (req, res) => {
   try {
     const teams = await Team.find()
       .select('name matchesPlayed wins losses points')
-      .sort({ points: -1, wins: -1 }) // Sort by points desc, then wins desc
+      .sort({ points: -1, wins: -1 })
       .lean();
-      if(!teams){
-        return res.status(404).json({error:"No teams found"});
-      }
-    
+
+    console.log("Fetched teams:", teams);
+
+    if (!teams || teams.length === 0) {
+      return res.status(200).json([]);
+    }
+
     res.status(200).json(teams);
   } catch (err) {
-    console.log('Error fetching points table:', err);
+    console.error('Error fetching points table:', err.message);
     res.status(500).json({ error: 'Failed to fetch points table' });
   }
 };
+
+// Fixed Team Controller - getPointsTable
+// teamCtlr.getPointsTable = async (req, res) => {
+//   try {
+//     const teams = await Team.find()
+//       .select('name matchesPlayed wins losses points')
+//       .sort({ points: -1, wins: -1 }) 
+//       .lean();
+//       if(!teams){
+//         return res.status(404).json({error:"No teams found"});
+//       }
+    
+//     res.status(200).json(teams);
+//   } catch (err) {
+//     console.log('Error fetching points table:', err);
+//     res.status(500).json({ error: 'Failed to fetch points table' });
+//   }
+// };
 
 
 

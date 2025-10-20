@@ -131,6 +131,7 @@ userController.login = async (req, res) => {
         };
 
         const token = jwt.sign(tokenData, 'secret@123', { expiresIn: '7d' });
+        console.log("Generated JWT Token:", token);
 
         res.status(200).json({
             message: "Login successful",

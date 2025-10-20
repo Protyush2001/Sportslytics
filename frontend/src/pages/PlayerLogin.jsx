@@ -115,7 +115,7 @@ const PlayerLogin = () => {
       dob: null,
     },
     onSubmit: values => {
-      // FIX: Handle timezone issue - get the date in local YYYY-MM-DD format
+      
       let dobString;
       if (values.dob) {
         const year = values.dob.getFullYear();

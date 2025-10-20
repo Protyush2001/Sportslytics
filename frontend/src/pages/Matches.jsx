@@ -6,7 +6,7 @@ import MatchForm from "../components/MatchForm";
 import ScoreUpdater from "../components/ScoreUpdater";
 import CommentaryFeed from "../components/CommentaryFeed";
 import StreamViewer from "../components/StreamViewer";
-import MatchPrediction from "../components/MatchesPrediction"; // ADD THIS IMPORT
+import MatchPrediction from "../components/MatchesPrediction"; 
 
 const BASE_URL = "http://localhost:3018/api/matches";
 
@@ -43,7 +43,7 @@ const EnhancedVideoPlayer = ({ stream, className = "", style = {} }) => {
       }
     } else {
       const url = stream.recordingUrl.startsWith('/') 
-        ? `http://localhost:3026${stream.recordingUrl}`
+        ? `http://localhost:3018${stream.recordingUrl}`
         : stream.recordingUrl;
       
       sources.push({
@@ -215,7 +215,7 @@ const Matches = () => {
   };
 
   useEffect(() => {
-    socket.current = io("http://localhost:3026", {
+    socket.current = io("http://localhost:3018", {
       reconnectionAttempts: 5,
       timeout: 10000,
     });
@@ -234,7 +234,7 @@ const Matches = () => {
   const fetchMatches = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:3026/getAllMatches", {
+      const response = await axios.get("http://localhost:3018/getAllMatches", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMatches(response.data || []);
@@ -308,7 +308,7 @@ const Matches = () => {
 
   const refreshMatch = async (matchId) => {
     try {
-      const res = await axios.get(`http://localhost:3026/getAllMatches`, {
+      const res = await axios.get(`http://localhost:3018/getAllMatches`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -398,7 +398,7 @@ const Matches = () => {
           }
 
           const uploadRes = await axios.post(
-            `http://localhost:3026/api/matches/${createdMatch._id}/uploadRecording`,
+            `http://localhost:3018/api/matches/${createdMatch._id}/uploadRecording`,
             formData,
             {
               headers: {
@@ -906,7 +906,7 @@ const Matches = () => {
                       }
 
                       await axios.post(
-                        `http://localhost:3026/api/matches/${createdMatch._id}/matchResult`,
+                        `http://localhost:3018/api/matches/${createdMatch._id}/matchResult`,
                         { winnerTeamName: winner },
                         { headers: { Authorization: `Bearer ${token}` } }
                       );

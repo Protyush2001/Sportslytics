@@ -357,7 +357,7 @@ export default function AuthProvider(props) {
       alert("Player login successful");
       
       // Navigate to players page (make sure this route exists)
-      navigate("/players");
+      navigate("/player-dashboard");
       
     } catch (err) {
       console.error("Player login error:", err);

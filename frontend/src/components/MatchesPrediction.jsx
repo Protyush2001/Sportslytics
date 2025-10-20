@@ -55,7 +55,7 @@ const MatchesPrediction = ({ match, onPredictionUpdate, socket }) => {
         : '/api/predictions/predict-live';
 
       const response = await axios.post(
-        `http://localhost:3026${endpoint}`,
+        `http://localhost:3018${endpoint}`,
         { 
           matchId: match._id,
           predictionType: type
@@ -80,7 +80,7 @@ const MatchesPrediction = ({ match, onPredictionUpdate, socket }) => {
   const generateLivePrediction = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:3026/api/predictions/predict-live`,
+        `http://localhost:3018/api/predictions/predict-live`,
         { 
           matchId: match._id
         },

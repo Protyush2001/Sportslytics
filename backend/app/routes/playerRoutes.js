@@ -300,6 +300,21 @@ router.get("/all", authenticateUser, async (req, res) => {
   }
 });
 
+// GET specific player by ID ---
+
+router.get("/me/:id",authenticateUser,async(req,res)=>{
+  try{
+    const player = await Player.findById(req.params.id);
+    if(!player){
+      return res.status(404).json({error:"Player not found"});
+    }
+    return res.status(200).json(player);
+  }catch(err){
+    console.log("Error fetching player data:",err);
+    res.status(500).json({ error: err.message });
+  }
+})
+
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 

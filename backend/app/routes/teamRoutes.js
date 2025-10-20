@@ -9,7 +9,6 @@ router.post('/', authenticateUser, teamCtlr.createTeam);
 router.get('/', authenticateUser, teamCtlr.getTeams);
 
 
-router.get('/:id', authenticateUser, teamCtlr.getTeamsById);
 
 router.delete('/:id', authenticateUser, teamCtlr.deleteTeam);
 
@@ -21,5 +20,7 @@ router.post('/:teamId/add-players', authenticateUser, teamCtlr.addPlayersToTeam)
 
 
 router.get('/points-table', authenticateUser, teamCtlr.getPointsTable);
+
+router.get('/:id', authenticateUser, teamCtlr.getTeamsById);
 
 module.exports = router;

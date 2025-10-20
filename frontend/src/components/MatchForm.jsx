@@ -29,7 +29,7 @@ const MatchForm = ({ onMatchCreated }) => {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const res = await axios.get(`http://localhost:3026/api/teams/${team1}`, {
+        const res = await axios.get(`http://localhost:3018/api/teams/${team1}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeam1Players(res.data.players || []);
@@ -47,7 +47,7 @@ const MatchForm = ({ onMatchCreated }) => {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const res = await axios.get(`http://localhost:3026/api/teams/${team2}`, {
+        const res = await axios.get(`http://localhost:3018/api/teams/${team2}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeam2Players(res.data.players || []);
@@ -66,7 +66,7 @@ const MatchForm = ({ onMatchCreated }) => {
     useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const res = await axios.get("http://localhost:3026/api/teams", {
+        const res = await axios.get("http://localhost:3018/api/teams", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeams(res.data || []);
@@ -164,7 +164,7 @@ const matchData = {
     };
 
     try {
-      const res = await axios.post("http://localhost:3026/matches", matchData, {
+      const res = await axios.post("http://localhost:3018/matches", matchData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
