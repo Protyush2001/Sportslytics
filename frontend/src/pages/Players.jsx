@@ -20,7 +20,7 @@ const Players = () => {
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState(null);
 
-  // pagination / loading state
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [totalPages, setTotalPages] = useState(1);

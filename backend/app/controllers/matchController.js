@@ -51,16 +51,16 @@ const fs = require('fs');
 const Team = require("../models/team-model");
 
 
-// Create uploads directory if it doesn't exist
+
 const uploadsDir = path.join(__dirname, '..', '..', 'uploads', 'Recordings');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Created uploads/Recordings directory at:', uploadsDir);
 }
-// // Configure multer for video file uploads
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadsDir) // Make sure this directory exists
+    cb(null, uploadsDir) 
   },
   filename: function (req, file, cb) {
     const uniqueName = `recording_${req.params.matchId}_${Date.now()}${path.extname(file.originalname)}`;
@@ -71,7 +71,7 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 500 * 1024 * 1024, // 500MB limit
+    fileSize: 500 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('video/')) {
@@ -83,20 +83,18 @@ const upload = multer({
 });
 
 
-// FIXED stopStream method
-// UPDATED START STREAMING FUNCTION - MP4 FOCUSED
+
 
 customMatchController.startStream = async (req, res) => {
   try {
     const match = await customMatch.findById(req.params.matchId);
     if (!match) return res.status(404).json({ msg: "Match not found" });
 
-    // Basic auth check
     if (match.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ msg: "Not authorized to start stream" });
     }
 
-    // Initialize stream object if it doesn't exist
+
     if (!match.stream) {
       match.stream = {};
     }
@@ -140,13 +138,13 @@ customMatchController.startStream = async (req, res) => {
       mimeType: null,
       duration: null,
       errorMessage: null,
-      targetFormat: 'mp4', // Specify target format for ImageKit processing
-      videoQuality: 'high', // Quality setting
-      requiresProcessing: true, // Flag that this needs ImageKit video processing
-      streamingReady: false // Will be true after ImageKit processing
+      targetFormat: 'mp4', 
+      videoQuality: 'high',
+      requiresProcessing: true, 
+      streamingReady: false 
     });
 
-    // Mark as modified to ensure save works
+
     match.markModified('stream');
     match.markModified('pastStreams');
 
@@ -158,7 +156,7 @@ customMatchController.startStream = async (req, res) => {
     console.log(`📊 PastStreams count: ${match.pastStreams.length}`);
     console.log(`🎯 Target format: MP4 for ImageKit compatibility`);
 
-    // Emit socket event for stream start
+
     try {
       const io = require('../../index.js').io;
       if (io) {
@@ -191,9 +189,9 @@ customMatchController.startStream = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("❌ Error starting stream:", err);
+    console.error(" Error starting stream:", err);
     
-    // Clean up on error
+
     try {
       const match = await customMatch.findById(req.params.matchId);
       if (match && match.stream) {
@@ -224,7 +222,7 @@ customMatchController.stopStream = async (req, res) => {
 
     const { recordingUrl } = req.body;
 
-    // Initialize pastStreams array if it doesn't exist
+
     if (!match.pastStreams) {
       match.pastStreams = [];
     }
@@ -232,7 +230,7 @@ customMatchController.stopStream = async (req, res) => {
     let streamUpdated = false;
 
     if (match.stream && match.stream.isLive) {
-      // Find existing stream entry by recordingId or roomId
+
       let existingStreamIndex = -1;
       
       if (match.stream.activeRecordingId) {
@@ -248,7 +246,7 @@ customMatchController.stopStream = async (req, res) => {
       }
 
       if (existingStreamIndex !== -1) {
-        // Update existing pastStream entry
+
         match.pastStreams[existingStreamIndex] = {
           ...match.pastStreams[existingStreamIndex],
           endedAt: new Date(),
@@ -259,7 +257,7 @@ customMatchController.stopStream = async (req, res) => {
         };
         streamUpdated = true;
       } else {
-        // Create new pastStream entry if none exists
+
         match.pastStreams.push({
           roomId: match.stream.roomId,
           startedBy: match.stream.startedBy,
@@ -279,7 +277,7 @@ customMatchController.stopStream = async (req, res) => {
       }
     }
 
-    // Clear current stream status
+
     match.stream = {
       isLive: false,
       roomId: null,
@@ -289,7 +287,7 @@ customMatchController.stopStream = async (req, res) => {
       activeRecordingId: null
     };
 
-    // Mark as modified to ensure save works
+
     match.markModified('stream');
     match.markModified('pastStreams');
 
@@ -325,19 +323,18 @@ customMatchController.uploadRecording = async (req, res) => {
       return res.status(404).json({ msg: "Match not found" });
     }
 
-    // Basic auth check
     if (match.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ msg: "Not authorized to upload recording" });
     }
 
     try {
-      // Get file extension from uploaded file
+     
       const fileExtension = path.extname(req.file.originalname).toLowerCase();
       
-      // Generate filename with correct extension
+      
       const uniqueFileName = `recording_${matchId}_${Date.now()}${fileExtension}`;
       
-      console.log('📤 Uploading to ImageKit:', {
+      console.log(' Uploading to ImageKit:', {
         originalName: req.file.originalname,
         extension: fileExtension,
         targetName: uniqueFileName,
@@ -373,19 +370,19 @@ customMatchController.uploadRecording = async (req, res) => {
       
       const videoUrl = generateImageKitVideoUrl(uploadResult.filePath);
       
-      console.log('🎬 Generated video streaming URL:', videoUrl);
+      console.log(' Generated video streaming URL:', videoUrl);
 
-      // Now use videoUrl instead of uploadResult.url
+
       const recordingUrl = videoUrl;
 
-      // Initialize pastStreams array if it doesn't exist
+
       if (!match.pastStreams) {
         match.pastStreams = [];
       }
 
       let updatedExisting = false;
       
-      // First try to find by recordingId if provided
+  
       if (recordingId) {
         const streamIndex = match.pastStreams.findIndex(
           stream => stream.recordingId === recordingId
@@ -461,7 +458,7 @@ customMatchController.uploadRecording = async (req, res) => {
         console.log('📝 Created new stream entry');
       }
 
-      // Clear current stream status if still active
+
       if (match.stream && match.stream.isLive) {
         match.stream = {
           isLive: false,
@@ -552,7 +549,7 @@ customMatchController.uploadRecording = async (req, res) => {
   } catch (err) {
     console.error("💥 Controller error:", err);
     
-    // Clean up local file on error
+
     try {
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
@@ -568,7 +565,7 @@ customMatchController.uploadRecording = async (req, res) => {
   }
 };
 
-// FIXED updateRecordingStatus method
+
 customMatchController.updateRecordingStatus = async (req, res) => {
   try {
     const { matchId } = req.params;
@@ -649,10 +646,9 @@ customMatchController.generatePrediction = async (req, res) => {
       return res.status(404).json({ msg: "Match not found" });
     }
 
-    // Use the prediction logic from the route we created
+
     const prediction = await generateMatchPrediction(match, predictionType);
-    
-    // Save to match
+
     match.predictions.push({
       type: 'match',
       prediction: prediction.prediction_text,
@@ -678,20 +674,20 @@ customMatchController.generatePrediction = async (req, res) => {
   }
 };
 
-// Auto-generate prediction on match events
+
 customMatchController.autoGeneratePrediction = async (matchId) => {
   try {
     const match = await customMatch.findById(matchId);
     if (!match || !match.aiEnabled) return;
 
-    // Generate prediction based on match situation
+
     const prediction = await generateInMatchPrediction(match);
     
-    // Update AI insights
+
     match.aiInsights.winProbability = prediction.win_probability;
     match.aiInsights.winProbability.lastUpdated = new Date();
 
-    // Add to predictions
+
     match.predictions.push({
       type: 'momentum',
       prediction: prediction.prediction_text,
@@ -701,7 +697,7 @@ customMatchController.autoGeneratePrediction = async (matchId) => {
 
     await match.save();
 
-    // Emit socket event for live updates
+
     const io = require('../../index.js').io;
     if (io) {
       io.to(`match_${matchId}`).emit('prediction_update', {
@@ -1210,10 +1206,9 @@ customMatchController.deleteMatch = async (req, res) => {
 };
 
 
-// Fixed Custom Match Controller - updateMatchResult
 customMatchController.updateMatchResult = async (req, res) => {
   try {
-    const { matchId } = req.params; // Get from URL params
+    const { matchId } = req.params; 
     const { winnerTeamName } = req.body;
 
     if (!matchId || !winnerTeamName) {
@@ -1225,12 +1220,12 @@ customMatchController.updateMatchResult = async (req, res) => {
       return res.status(404).json({ error: "Match not found" });
     }
 
-    // Update match result
+
     match.result = `${winnerTeamName} won`;
     match.status = "Completed";
     await match.save();
 
-    // Update team stats
+
     const updatePromises = match.teams.map(async (team) => {
       try {
         const teamDoc = await Team.findOne({ name: team.name });
@@ -1240,10 +1235,10 @@ customMatchController.updateMatchResult = async (req, res) => {
           
           if (team.name === winnerTeamName) {
             teamDoc.wins += 1;
-            teamDoc.points += 2; // 2 points for a win
+            teamDoc.points += 2; 
           } else {
             teamDoc.losses += 1;
-            // 0 points for a loss
+            
           }
           
           await teamDoc.save();
@@ -1256,7 +1251,7 @@ customMatchController.updateMatchResult = async (req, res) => {
       }
     });
 
-    // Wait for all team updates to complete
+
     await Promise.all(updatePromises);
 
     res.status(200).json({ 

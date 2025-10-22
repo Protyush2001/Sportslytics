@@ -15,7 +15,7 @@ const MatchPerformance = ({ playerId, playerName }) => {
       setLoading(true);
       setError('');
       
-      // You'll need to create this endpoint in your backend
+      
       const response = await axios.get(`http://localhost:3026/api/players/${playerId}/match-performance`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -119,7 +119,7 @@ const MatchPerformance = ({ playerId, playerName }) => {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-3">
-                {/* Batting Performance */}
+             
                 <div className="text-center">
                   <h5 className="text-sm font-medium text-gray-700 mb-1">🏏 Batting</h5>
                   {match.batting ? (
@@ -142,7 +142,7 @@ const MatchPerformance = ({ playerId, playerName }) => {
                   )}
                 </div>
 
-                {/* Bowling Performance */}
+               
                 <div className="text-center">
                   <h5 className="text-sm font-medium text-gray-700 mb-1">🎯 Bowling</h5>
                   {match.bowling ? (
@@ -163,7 +163,7 @@ const MatchPerformance = ({ playerId, playerName }) => {
                 </div>
               </div>
 
-              {/* Fielding Performance */}
+             
               {(match.fielding?.catches > 0 || match.fielding?.runOuts > 0) && (
                 <div className="mt-3 pt-3 border-t border-gray-200">
                   <h5 className="text-sm font-medium text-gray-700 mb-1">👐 Fielding</h5>

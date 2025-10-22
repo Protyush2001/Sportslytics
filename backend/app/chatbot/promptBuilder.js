@@ -75,17 +75,17 @@ function formatAppContext(appContext) {
 
   // Live Matches Section
   if (liveData?.liveMatches?.length > 0) {
-    formatted += `\n\n🔴 LIVE MATCHES RIGHT NOW:`;
+    formatted += `\n\n LIVE MATCHES RIGHT NOW:`;
     liveData.liveMatches.forEach((match, index) => {
       formatted += `\n  ${index + 1}. ${match.teams} - ${match.score} (${match.overs} overs)`;
     });
   } else {
-    formatted += `\n\n🔴 LIVE MATCHES: None currently in progress`;
+    formatted += `\n\n LIVE MATCHES: None currently in progress`;
   }
 
   // Today's Matches
   if (liveData?.todayMatches?.length > 0) {
-    formatted += `\n\n📅 TODAY'S MATCHES:`;
+    formatted += `\n\n TODAY'S MATCHES:`;
     liveData.todayMatches.forEach((match, index) => {
       formatted += `\n  ${index + 1}. ${match.teams} - Status: ${match.status}`;
       if (match.winner) {
@@ -98,7 +98,7 @@ function formatAppContext(appContext) {
 
   // Top Performers
   if (players?.topPerformers?.topBatsmen?.length > 0) {
-    formatted += `\n\n🏏 TOP BATSMEN (Current Season):`;
+    formatted += `\n\n TOP BATSMEN (Current Season):`;
     players.topPerformers.topBatsmen.slice(0, 5).forEach((player, index) => {
       const average = (player.average && typeof player.average === 'number') ? player.average.toFixed(1) : '0.0';
       const runs = player.runs || 0;
@@ -117,7 +117,7 @@ function formatAppContext(appContext) {
 
   // Recent Match Results
   if (matches?.recent?.length > 0) {
-    formatted += `\n\n🎯 RECENT MATCH RESULTS:`;
+    formatted += `\n\n RECENT MATCH RESULTS:`;
     matches.recent.slice(0, 5).forEach((match, index) => {
       const date = new Date(match.date).toLocaleDateString("en-IN", { 
         month: 'short', 
@@ -137,7 +137,7 @@ function formatAppContext(appContext) {
   const hasMatchData = matches?.recent?.length > 0;
 
   if (!hasLiveData && !hasPlayerData && !hasMatchData) {
-    formatted += `\n\n⚠️ DATA STATUS: Limited cricket activity detected. This could mean:
+    formatted += `\n\n DATA STATUS: Limited cricket activity detected. This could mean:
 • New platform with minimal historical data
 • Off-season period with no recent matches
 • Database sync in progress`;
@@ -151,7 +151,7 @@ function formatAppContext(appContext) {
 function getContextualPromptEnhancements(message, userRole) {
   const enhancements = [];
   
-  // Role-based enhancements
+
   switch (userRole) {
     case 'admin':
       enhancements.push("Focus on platform analytics, user engagement metrics, and system performance insights.");
@@ -164,7 +164,6 @@ function getContextualPromptEnhancements(message, userRole) {
       break;
   }
 
-  // Query type enhancements
   const lowerMessage = message.toLowerCase();
   
   if (lowerMessage.includes('today') || lowerMessage.includes('current')) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUsers, FaChartLine, FaCalendarAlt,FaUserEdit,FaGamepad, FaShieldAlt } from "react-icons/fa";
 
@@ -11,8 +11,8 @@ const AdminDashboard = () => {
   });
 
   
-  const [users, setUsers] = useState([]); // made changes
-  const [matches, setMatches] = useState([]); // made changes
+  const [users, setUsers] = useState([]); 
+  const [matches, setMatches] = useState([]); 
   const [showUsers, setShowUsers] = useState(false);
 const [showMatches, setShowMatches] = useState(false);
 
@@ -20,7 +20,6 @@ const [showMatches, setShowMatches] = useState(false);
 
   const token = localStorage.getItem("token");
 
-  // handler functions
   const handleEditUser = async (userId) => {
   const newRole = prompt("Enter new role for this user (admin, player, team_owner):");
   if (!newRole) return;
@@ -30,7 +29,7 @@ const [showMatches, setShowMatches] = useState(false);
       headers: { Authorization: `Bearer ${token}` },
     });
     alert("User role updated successfully");
-    // Refresh user list
+ 
     const res = await axios.get("http://localhost:3018/admin/users", {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -138,21 +137,10 @@ const handleControlMatch = async (matchId) => {
         />
       </div>
 
-      {/* Management Panels */}
+
 
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* <ManagementPanel title="User Management" description="View, edit, or remove users.">
-          <ul className="text-sm text-gray-700 space-y-2">
-            {users.map((user) => (
-              <li key={user._id} className="flex justify-between items-center">
-                <span>
-                  {user.username} ({user.role})
-                </span>
-                <FaUserEdit className="text-blue-500 cursor-pointer hover:text-blue-700" onClick={() => handleEditUser(user._id)}/>
-              </li>
-            ))}
-          </ul>
-        </ManagementPanel> */}
+
          <ManagementPanel title="User Management" description="View, edit, or remove users.">
     <button
       onClick={() => setShowUsers(!showUsers)}
@@ -176,22 +164,8 @@ const handleControlMatch = async (matchId) => {
     )}
   </ManagementPanel>
  
-  {/* Match Control Panel */}
-        {/* <ManagementPanel title="Match Control" description="Monitor match activity.">
-          <ul className="text-sm text-gray-700 space-y-2">
-            {matches.map((match) => (
-              <li key={match._id} className="flex justify-between items-center">
-                <span>
-                  {match.title} — {match.status}
-                </span>
-                <FaGamepad className="text-green-500 cursor-pointer hover:text-green-700" onClick={() => handleControlMatch(match._id)}
- />
-              </li>
-            ))}
-          </ul>
-        </ManagementPanel> */}
 
-        
+
 
   <ManagementPanel title="Match Control" description="Monitor match activity.">
     <button

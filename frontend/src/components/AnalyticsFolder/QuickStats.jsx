@@ -1,4 +1,4 @@
-import React from "react";
+
 
 const QuickStats = ({ playerStats, filteredStats }) => {
   const totalRuns = filteredStats.reduce((sum, player) => sum + (player.runs || 0), 0);

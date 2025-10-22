@@ -4,14 +4,14 @@ const { getMatchInsights } = require("./contextBuilder");
 const jwt = require('jsonwebtoken');
 const User = require("../models/user-model");
 
-// Store active chat sessions
+
 const activeSessions = new Map();
 
 function registerChatbotHandlers(io) {
   io.on("connection", (socket) => {
-    console.log(`🤖 Chatbot socket connected: ${socket.id}`);
+    console.log(` Chatbot socket connected: ${socket.id}`);
     
-    // Initialize session
+
     activeSessions.set(socket.id, {
       userId: null,
       userRole: null,
@@ -20,7 +20,7 @@ function registerChatbotHandlers(io) {
       joinedAt: new Date()
     });
 
-    // Handle user authentication
+
     socket.on("authenticate", async (data) => {
       try {
         const { token } = data;
@@ -38,7 +38,7 @@ function registerChatbotHandlers(io) {
           return;
         }
 
-        // Update session with user info
+
         const session = activeSessions.get(socket.id);
         session.userId = user._id;
         session.userRole = user.role;
@@ -60,7 +60,6 @@ function registerChatbotHandlers(io) {
       }
     });
 
-    // Handle user messages
     socket.on("userMessage", async (data) => {
       try {
         const { message, messageId, timestamp } = data;
@@ -78,39 +77,38 @@ function registerChatbotHandlers(io) {
 
         console.log(`💬 Message from ${session?.userName || socket.id}: ${message.substring(0, 100)}...`);
 
-        // Show typing indicator
+
         socket.emit("botTyping", { isTyping: true });
 
-        // Add to chat history
+
         session.chatHistory.push({
           type: 'user',
           message: message,
           timestamp: new Date()
         });
 
-        // Keep only last 10 messages to manage memory
         if (session.chatHistory.length > 20) {
           session.chatHistory = session.chatHistory.slice(-20);
         }
 
-        // Generate context-aware reply
+
         const userContext = {
           userId: session.userId,
           role: session.userRole,
           name: session.userName,
-          chatHistory: session.chatHistory.slice(-6) // Last 6 messages for context
+          chatHistory: session.chatHistory.slice(-6) 
         };
 
         const reply = await generateReply(message, userContext);
         
-        // Add bot reply to history
+
         session.chatHistory.push({
           type: 'bot',
           message: reply,
           timestamp: new Date()
         });
 
-        // Send reply
+
         socket.emit("botTyping", { isTyping: false });
         socket.emit("botReply", {
           message: reply,
@@ -133,7 +131,7 @@ function registerChatbotHandlers(io) {
       }
     });
 
-    // Handle quick actions
+
     socket.on("quickAction", async (data) => {
       try {
         const { action, params } = data;
@@ -155,7 +153,7 @@ function registerChatbotHandlers(io) {
           case "getMyStats":
             if (session.userRole === 'player') {
               response = "Let me fetch your latest performance statistics...";
-              // This would trigger a more detailed user stats query
+
             } else {
               response = "Player statistics are only available for registered players.";
             }
@@ -182,13 +180,11 @@ function registerChatbotHandlers(io) {
       }
     });
 
-    // Handle feedback
+
     socket.on("chatFeedback", (data) => {
       const { messageId, rating, comment } = data;
       console.log(`📝 Feedback received: Rating ${rating}/5 for message ${messageId}`);
-      
-      // Store feedback for improvement (implement according to your needs)
-      // This could be stored in a database for analytics
+
       
       socket.emit("feedbackReceived", {
         message: "Thank you for your feedback! It helps me improve.",
@@ -196,7 +192,7 @@ function registerChatbotHandlers(io) {
       });
     });
 
-    // Handle disconnection
+
     socket.on("disconnect", (reason) => {
       const session = activeSessions.get(socket.id);
       const sessionDuration = session ? 
@@ -209,7 +205,7 @@ function registerChatbotHandlers(io) {
     });
   });
 
-  // Periodic cleanup of old sessions
+
   setInterval(() => {
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -219,14 +215,14 @@ function registerChatbotHandlers(io) {
         activeSessions.delete(socketId);
       }
     }
-  }, 15 * 60 * 1000); // Cleanup every 15 minutes
+  }, 15 * 60 * 1000); 
 }
 
 function generateSuggestions(message, userRole) {
   const suggestions = [];
   const lowerMessage = message.toLowerCase();
 
-  // Role-based suggestions
+
   if (userRole === 'teamOwner') {
     if (lowerMessage.includes('player') || lowerMessage.includes('team')) {
       suggestions.push("Show my team's top performers", "Compare my players", "Suggest team strategy");
@@ -237,7 +233,7 @@ function generateSuggestions(message, userRole) {
     suggestions.push("My performance stats", "Compare with others", "Training suggestions");
   }
 
-  // General suggestions
+
   if (lowerMessage.includes('match')) {
     suggestions.push("Live matches", "Recent results", "Upcoming fixtures");
   }
@@ -246,7 +242,7 @@ function generateSuggestions(message, userRole) {
     suggestions.push("Top players", "Live matches", "Recent statistics");
   }
 
-  return suggestions.slice(0, 3); // Limit to 3 suggestions
+  return suggestions.slice(0, 3); 
 }
 
 function getErrorResponse(error) {

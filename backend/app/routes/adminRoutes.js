@@ -6,7 +6,7 @@ const Player = require("../models/player-model")
 const authorizeRoles = require("../middlewares/checkRole");
 const authenticateUser = require("../middlewares/authenticateUser");
 
-// GET /admin/stats → Dashboard metrics
+
 router.get("/stats", authenticateUser, authorizeRoles("admin"), async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -29,7 +29,6 @@ router.get("/stats", authenticateUser, authorizeRoles("admin"), async (req, res)
 });
 
 
-// ✅ GET /admin/users → list all users
 router.get("/users", authenticateUser, authorizeRoles("admin"), async (req, res) => {
   try {
     const users = await User.find().select("_id username email role");
@@ -39,7 +38,7 @@ router.get("/users", authenticateUser, authorizeRoles("admin"), async (req, res)
   }
 });
 
-// ✅ DELETE /admin/user/:id → remove user
+
 router.delete("/user/:id", authenticateUser, authorizeRoles("admin"), async (req, res) => {
   try {
     const deleted = await User.findByIdAndDelete(req.params.id);
@@ -50,7 +49,7 @@ router.delete("/user/:id", authenticateUser, authorizeRoles("admin"), async (req
   }
 });
 
-// ✅ PATCH /admin/user/:id → update role or status
+
 router.patch("/user/:id", authenticateUser, authorizeRoles("admin"), async (req, res) => {
   try {
     const { role } = req.body;
@@ -62,7 +61,7 @@ router.patch("/user/:id", authenticateUser, authorizeRoles("admin"), async (req,
   }
 });
 
-// ✅ GET /admin/matches → monitor match activity
+
 router.get("/matches", authenticateUser, authorizeRoles("admin"), async (req, res) => {
   try {
     const matches = await CustomMatch.find().select("_id title status date createdBy");
@@ -72,7 +71,7 @@ router.get("/matches", authenticateUser, authorizeRoles("admin"), async (req, re
   }
 });
 
-// DELETE /admin/matches/:id -> delete match
+
 router.delete("/matches/:id", authenticateUser, authorizeRoles("admin"), async (req, res) => {
   try {
     const deleted = await CustomMatch.findByIdAndDelete(req.params.id);
@@ -83,9 +82,6 @@ router.delete("/matches/:id", authenticateUser, authorizeRoles("admin"), async (
   }
 });
 
-// Future: GET /admin/users → list all users
-// Future: DELETE /admin/user/:id → remove user
-// Future: PATCH /admin/user/:id → update role or status
-// Future: GET /admin/matches → monitor match activity
+
 
 module.exports = router;

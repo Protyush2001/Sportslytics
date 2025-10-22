@@ -14,8 +14,8 @@ const Filters = ({
   playerStats,
   filteredStats,
   expertise,
-  selectedPlayer, // ADD
-  setSelectedPlayer // ADD
+  selectedPlayer, 
+  setSelectedPlayer 
 }) => {
   const filteredPlayerA = filteredStats.filter((player) => player._id !== playerB);
   const filteredPlayerB = filteredStats.filter((player) => player._id !== playerA);
@@ -91,7 +91,7 @@ const Filters = ({
             </select>
           </div>
         )}
-        {/* ADD PLAYER SELECTION FOR MATCH PERFORMANCE */}
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             View Player Match Performance

@@ -23,17 +23,17 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// POST /api/players
+
 router.post("/", authenticateUser, upload.single('image'), async (req, res) => {
   try {
-        // Build the image URL if a file was uploaded
+      
     let imageUrl = null;
     if (req.file) {
       imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     }
     const playerData = {
       ...req.body,
-      // createdBy: req.userId, // Set from JWT token
+
       createdBy: req.user._id,
       image: imageUrl,
     };
@@ -58,7 +58,7 @@ const generateToken = (userId) => {
   );
 };
 
-// router.post('/login', async (req, res) => {
+
 //   try {
 //     const { email, dob } = req.body;
 //     // const player = await Player.findOne({ email, dob });
@@ -92,7 +92,7 @@ router.post('/login', async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
     
-    // Find player by email first
+
     const player = await Player.findOne({ email: cleanEmail });
 
     console.log("📊 Player found:", player ? `Yes - ${player.name}` : "No");
@@ -101,11 +101,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: "Invalid email or date of birth" });
     }
 
-    // Handle date comparison - convert both to same format
-    const providedDOB = new Date(dob).toISOString().split('T')[0]; // "2001-07-21"
-    const storedDOB = player.dob.toISOString().split('T')[0]; // "2001-07-21"
+
+    const providedDOB = new Date(dob).toISOString().split('T')[0]; 
+    const storedDOB = player.dob.toISOString().split('T')[0]; 
     
-    console.log("📅 Date comparison:", {
+    console.log(" Date comparison:", {
       providedDOB,
       storedDOB,
       match: providedDOB === storedDOB
@@ -117,7 +117,7 @@ router.post('/login', async (req, res) => {
 
     const token = generateToken(player._id);
 
-    console.log("✅ Login successful for:", player.name);
+    console.log(" Login successful for:", player.name);
     
     res.status(200).json({ 
       message: "Login successful", 
@@ -131,7 +131,7 @@ router.post('/login', async (req, res) => {
     });
     
   } catch (err) {
-    console.error("❌ Error logging in:", err.message);
+    console.error(" Error logging in:", err.message);
     res.status(500).json({ error: "Server error during login" });
   }
 });
@@ -164,7 +164,7 @@ router.patch('/:id/add-login-info', async (req, res) => {
   }
 });
 
-//POST /api/players/bulk
+
 
 router.post("/bulk", authenticateUser, async (req, res) => {
   try {
@@ -176,12 +176,11 @@ router.post("/bulk", authenticateUser, async (req, res) => {
   }
 });
 
-// PUT /api/players/:id
 router.put("/:id", authenticateUser,upload.single('image'), async (req, res) => {
   try {
     const playerData = {
       ...req.body,
-      createdBy: req.user._id, // Ensure createdBy is preserved
+      createdBy: req.user._id, 
       image: req.file ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}` : undefined,
     };
     console.log("Updating player with data:", playerData); // Debug
@@ -199,7 +198,7 @@ router.put("/:id", authenticateUser,upload.single('image'), async (req, res) => 
   }
 });
 
-// GET /api/players
+
 
 router.get("/", authenticateUser, async (req, res) => {
   try {
@@ -208,7 +207,7 @@ router.get("/", authenticateUser, async (req, res) => {
     console.log("Fetching players with query:", query);
     const players = await Player.find(query).lean();
     console.log("Sending players:", players);
-    res.json({ players });  // changes made here
+    res.json({ players });  
   } catch (err) {
     console.error("Error fetching players:", err.message);
     res.status(500).json({ error: "Server error" });
@@ -217,7 +216,7 @@ router.get("/", authenticateUser, async (req, res) => {
 
 
 
-// routes/playerRoutes.js
+
 
 
 router.get("/unassigned", authenticateUser, async (req, res) => {
@@ -229,14 +228,12 @@ router.get("/unassigned", authenticateUser, async (req, res) => {
   }
 });
 
-////////////////////////////////
-// Add to your player routes
+
 router.get('/:playerId/match-performance', async (req, res) => {
   try {
     const { playerId } = req.params;
     
-    // This depends on your database structure
-    // You'll need to query matches where this player participated
+
     const matchPerformances = await Match.find({
       $or: [
         { 'players.playerId': playerId },
@@ -248,10 +245,9 @@ router.get('/:playerId/match-performance', async (req, res) => {
     .sort({ date: -1 })
     .limit(20);
 
-    // Transform the data to extract player-specific performance
+
     const performances = matchPerformances.map(match => {
-      // Extract player's batting, bowling, and fielding stats from the match
-      // This logic depends on your match data structure
+
       const playerPerformance = {
         matchId: match._id,
         matchTitle: match.title,
@@ -260,7 +256,7 @@ router.get('/:playerId/match-performance', async (req, res) => {
           !team.players.some(p => p.playerId?.toString() === playerId)
         )?.name || 'Opponent',
         result: match.result,
-        // Add batting, bowling, fielding stats based on your data structure
+      
       };
       
       return playerPerformance;
@@ -273,16 +269,7 @@ router.get('/:playerId/match-performance', async (req, res) => {
   }
 });
 
-// router.get("/players/all",authenticateUser, async (req,res)=>{
-//   try{
-//     const players = await Player.find();
-//     res.status(200).json(players);
-//   }catch(err){
-//     res.status(500).json({ error: err.message });
-//   }
-// })
 
-// GET /api/players/all
 
 router.get("/all", authenticateUser, async (req, res) => {
   try {
@@ -290,7 +277,7 @@ router.get("/all", authenticateUser, async (req, res) => {
 
     let query = {};
     if (teamId) {
-      query.teamId = teamId; // ✅ only fetch players for that team
+      query.teamId = teamId; 
     }
 
     const players = await Player.find(query).populate("teamId", "name");
@@ -300,7 +287,7 @@ router.get("/all", authenticateUser, async (req, res) => {
   }
 });
 
-// GET specific player by ID ---
+
 
 router.get("/me/:id",authenticateUser,async(req,res)=>{
   try{
@@ -318,71 +305,17 @@ router.get("/me/:id",authenticateUser,async(req,res)=>{
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// router.get("/select-team", authenticateUser, async (req, res) => {
-//   try {
-//     const players = await Player.find({ createdBy: req.userId }).lean();
-//     if (players.length < 11) {
-//       return res.status(400).json({ error: "Not enough players to form a team (need at least 11)" });
-//     }
 
-//     // Prepare player data for Gemini
-//     const playerData = players.map(p => ({
-//       name: p.name,
-//       role: p.role,
-//       runs: p.runs || 0,
-//       wickets: p.wickets || 0,
-//       average: p.average || 0,
-//       matches: p.matches || 0,
-//     }));
 
-//     // Construct prompt
-// const prompt = `
-// Select the best possible cricket playing 11 from the following players.
-// Requirements:
-// - 4-5 batsmen (role: batsman or allrounder)
-// - 4-5 bowlers (role: bowler or allrounder)
-// - 1 wicket-keeper (role: keeper)
-// - 1-2 all-rounders (role: allrounder)
-// Prioritize players with high runs and batting average for batsmen, high wickets for bowlers, and balance for all-rounders.
-
-// Return ONLY a valid JSON object with a "bestTeam" array, no explanation, no markdown, and NO code fences. 
-// Example:
-// {
-//   "bestTeam": [
-//     { "name": "Player 1", "role": "batsman", "reason": "High average" },
-//     { "name": "Player 2", "role": "bowler", "reason": "Most wickets" }
-//     // ...total 11 players
-//   ]
-// }
-
-// Player data: ${JSON.stringify(playerData, null, 2)}
-// `;
-
-//     // Call Gemini AI
-//     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-//     const result = await model.generateContent(prompt);
-//     const response = await result.response;
-//     const bestTeam = JSON.parse(response.text());
-
-//     res.json({ bestTeam: [...bestTeam] });
-//   } catch (err) {
-//     console.error("Error selecting team:", err.message);
-//     res.status(500).json({ error: "Failed to select team" });
-//   }
-// });
-
-// DELETE /api/players/:id
-
-//last ata work koreche -----
 router.get("/select-team", authenticateUser, async (req, res) => {
   try {
-    // Use req.user._id, not req.userId
+
     const players = await Player.find({ createdBy: req.user._id }).lean();
     if (players.length < 11) {
       return res.status(400).json({ error: "Not enough players to form a team (need at least 11)" });
     }
 
-    // Prepare player data for Gemini
+
     const playerData = players.map(p => ({
       name: p.name,
       role: p.role,
@@ -392,7 +325,7 @@ router.get("/select-team", authenticateUser, async (req, res) => {
       matches: p.matches || 0,
     }));
 
-    // Strict prompt
+
     const prompt = `
 Select the best possible cricket playing 11 from the following players.
 Requirements:
@@ -440,7 +373,7 @@ Player data: ${JSON.stringify(playerData, null, 2)}
   }
 });
 
-// Add this improved select-team endpoint to your playerRoutes.js
+
 
 // router.get("/select-team", authenticateUser, async (req, res) => {
 //   try {
@@ -646,7 +579,7 @@ function createFallbackTeam(players) {
     });
   });
   
-  // Fill remaining slots with all-rounders or best remaining players
+
   const remaining = 11 - team.length;
   const availableAllrounders = allrounders.slice(0, remaining);
   
@@ -658,7 +591,7 @@ function createFallbackTeam(players) {
     });
   });
   
-  // If still need more players, add remaining players
+
   if (team.length < 11) {
     const usedNames = new Set(team.map(p => p.name));
     const remainingPlayers = players.filter(p => !usedNames.has(p.name));
@@ -672,7 +605,7 @@ function createFallbackTeam(players) {
     });
   }
   
-  console.log(`✅ Fallback team created with ${team.length} players`);
+  console.log(`Fallback team created with ${team.length} players`);
   return team.slice(0, 11); // Ensure exactly 11 players
 }
 

@@ -189,7 +189,6 @@ const Teams = () => {
           🏏 Team Management
         </h1>
 
-        {/* Search Bar */}
         <div className="mb-8 flex justify-center">
           <div className="relative w-full max-w-md">
             <input
@@ -215,7 +214,6 @@ const Teams = () => {
           </div>
         </div>
 
-        {/* Create Team Button */}
         {(role === "team_owner" || role === "admin") && (
           <div className="text-center mb-10">
             <button
@@ -230,7 +228,7 @@ const Teams = () => {
           </div>
         )}
 
-        {/* Teams Grid */}
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTeams.length > 0 ? (
             filteredTeams.map((team) => (
@@ -270,7 +268,7 @@ const Teams = () => {
           )}
         </div>
 
-        {/* Create Team Modal */}
+       
         {showModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl">

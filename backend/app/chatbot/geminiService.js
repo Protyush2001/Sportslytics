@@ -20,7 +20,7 @@ async function generateReply(userMessage, userContext = {}) {
       }
     });
 
-    // Get comprehensive context with detailed logging
+
     console.log(" Fetching app analytics...");
     const appContext = await getAppAnalytics();
     console.log(` App context loaded - Users: ${appContext.users?.total}, Matches: ${appContext.matches?.total}, Live: ${appContext.liveData?.liveMatches?.length}`);
@@ -32,7 +32,7 @@ async function generateReply(userMessage, userContext = {}) {
       console.log(` User context loaded: ${userSpecificContext?.substring(0, 100)}...`);
     }
 
-    // Build the prompt with all available data
+
     const prompt = buildPrompt(userMessage, {
       appContext,
       userContext: userSpecificContext,
@@ -43,7 +43,7 @@ async function generateReply(userMessage, userContext = {}) {
     console.log(" Sending request to Gemini API...");
     console.log(` Prompt length: ${prompt.length} characters`);
     
-    // Log a sample of the data being sent (for debugging)
+
     if (appContext.players?.topPerformers?.topBatsmen?.length > 0) {
       console.log(` Sample data - Top batsman: ${appContext.players.topPerformers.topBatsmen[0].name} (${appContext.players.topPerformers.topBatsmen[0].runs} runs)`);
     }
@@ -55,18 +55,18 @@ async function generateReply(userMessage, userContext = {}) {
     const result = await model.generateContent(prompt);
     const response = result.response.text().trim();
 
-    // Log successful generation
+
     console.log(` Gemini response received: ${response.length} characters`);
     console.log(` Response preview: "${response.substring(0, 150)}..."`);
 
-    // Validate that the response uses actual data
+
     validateResponseQuality(response, appContext, userMessage);
 
     return response;
   } catch (error) {
     console.error(" Gemini API error:", error);
     
-    // Enhanced error handling with fallback responses
+
     if (error.message?.includes('API_KEY')) {
       console.error(" API Key issue detected");
       return "I'm experiencing authentication issues with my AI service. Please contact the administrator to check the API configuration.";
@@ -82,7 +82,7 @@ async function generateReply(userMessage, userContext = {}) {
       return "Your request is taking longer than expected. Let me provide a quick response based on available data while we resolve this.";
     }
 
-    // Try to provide a data-driven fallback response
+
     try {
       console.log(" Attempting fallback response with cached data...");
       const fallbackResponse = await generateFallbackResponse(userMessage, userContext);
@@ -91,14 +91,13 @@ async function generateReply(userMessage, userContext = {}) {
       console.error(" Fallback response also failed:", fallbackError);
     }
 
-    // Final fallback based on query type
     return getFinalFallbackResponse(userMessage);
   }
 }
 
 async function generateFallbackResponse(userMessage, userContext) {
   try {
-    // Get basic app data for fallback
+
     const appContext = await getAppAnalytics();
     const lowerMessage = userMessage.toLowerCase();
 
@@ -132,7 +131,7 @@ async function generateFallbackResponse(userMessage, userContext) {
       return `Based on your teams: ${userSpecificContext}`;
     }
 
-    // Default fallback with available data
+
     return `I have access to data for ${appContext.users?.total || 0} users, ${appContext.matches?.total || 0} matches, and ${appContext.players?.total || 0} players. What specific information would you like to know about?`;
 
   } catch (error) {
@@ -161,10 +160,10 @@ function validateResponseQuality(response, appContext, userMessage) {
   const lowerResponse = response.toLowerCase();
   const lowerMessage = userMessage.toLowerCase();
   
-  // Check if response incorrectly claims no data when data exists
+
   if (lowerResponse.includes('no data') || lowerResponse.includes('not available') || lowerResponse.includes('unavailable')) {
     
-    // Check if we actually have relevant data
+
     const hasPlayerData = appContext.players?.topPerformers?.topBatsmen?.length > 0 || appContext.players?.topPerformers?.topBowlers?.length > 0;
     const hasMatchData = appContext.matches?.recent?.length > 0 || appContext.liveData?.liveMatches?.length > 0;
     const hasTodayData = appContext.liveData?.todayMatches?.length > 0;
@@ -180,8 +179,8 @@ function validateResponseQuality(response, appContext, userMessage) {
     }
   }
   
-  // Check if response uses specific data from context
-  const hasSpecificNames = /[A-Z][a-z]+ [A-Z][a-z]+/.test(response); // Basic name pattern
+
+  const hasSpecificNames = /[A-Z][a-z]+ [A-Z][a-z]+/.test(response); 
   const hasSpecificNumbers = /\d+/.test(response);
   
   if ((hasSpecificNames || hasSpecificNumbers)) {
@@ -191,7 +190,7 @@ function validateResponseQuality(response, appContext, userMessage) {
   }
 }
 
-// Utility function to test data connectivity
+
 async function testDataConnectivity() {
   try {
     console.log(" Testing database connectivity...");

@@ -1,5 +1,4 @@
 
-import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -34,7 +33,7 @@ const Charts = ({ playerStats, filteredStats, playerA, playerB, selectedRole }) 
     ? playerStats.filter(p => p._id === playerA || p._id === playerB)
     : filteredStats;
 
-  // Create unique keys based on the data to force re-renders
+ 
   const barChartKey = `bar-${playersToShow.map(p => p._id).join('-')}-${selectedRole}`;
   const lineChartKey = `line-${playerA}-${playerB}`;
 

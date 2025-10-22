@@ -1,4 +1,4 @@
-// const jwt = require('jsonwebtoken');
+
 
 // const authenticateUser = (req,res,next)=>{
 //     // const token = req.headers['authorization'];
@@ -31,7 +31,7 @@ const authenticateUser = (req, res, next) => {
     return res.status(401).json({ error: 'Authorization header not provided' });
   }
 
-  // Check if token has Bearer prefix
+
   const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
 
   if (!token) {
@@ -39,11 +39,9 @@ const authenticateUser = (req, res, next) => {
   }
 
   try {
-    const tokenData = jwt.verify(token, process.env.JWT_SECRET); // secret should be in env file
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET); 
     console.log('Token data:', tokenData);
 
-    // Attach user ID to request object
-    // req.userId = tokenData.userId;
     req.user = { _id: tokenData.userId,
       role: tokenData.role
  };

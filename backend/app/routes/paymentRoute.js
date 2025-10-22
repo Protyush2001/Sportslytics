@@ -5,7 +5,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 router.post('/create-payment-intent', async (req, res) => {
   const { role } = req.body;
 
-  // Define pricing per role
+
   const rolePricing = {
     team_owner: 50000, 
     admin: 100000      

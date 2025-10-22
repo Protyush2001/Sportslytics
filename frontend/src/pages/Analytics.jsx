@@ -163,13 +163,13 @@ const Analytics = () => {
           playerStats={playerStats}
           filteredStats={filteredStats}
           expertise={expertise}
-           selectedPlayer={selectedPlayer} // ADD THIS
-          setSelectedPlayer={setSelectedPlayer} // ADD THIS
+           selectedPlayer={selectedPlayer} 
+          setSelectedPlayer={setSelectedPlayer} 
         />
 
         <StatsCards filteredStats={filteredStats} />
 
-                {/* ADD MATCH PERFORMANCE SECTION */}
+               
         <div className="mt-8">
           <MatchPerformance 
             playerId={selectedPlayer}

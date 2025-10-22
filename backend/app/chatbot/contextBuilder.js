@@ -4,11 +4,11 @@ const Team = require("../models/team-model");
 const Match = require("../models/customMatch-model");
 const Player = require("../models/player-model");
 
-// Cache for frequently accessed data
+
 const cache = {
   data: {},
   timestamp: {},
-  TTL: 2 * 60 * 1000 // 2 minutes for more real-time data
+  TTL: 2 * 60 * 1000 
 };
 
 function getCachedData(key) {
@@ -27,10 +27,6 @@ function setCachedData(key, data) {
 
 async function getUserContext(role, userId) {
   const cacheKey = `user_${role}_${userId}`;
-  // const cached = getCachedData(cacheKey);
-  // if (false && cached){
-  //   return cached;
-  // } 
   const cached = false; 
 if (cached) return cached;
 
@@ -74,7 +70,7 @@ Top Bowlers: ${topBowlers.length > 0 ? topBowlers.map(p => `${p.name} (${p.wicke
       }
 
     } else if (role === "admin") {
-      // Get comprehensive admin stats
+
       const [userCount, matchCount, teamCount, playerCount] = await Promise.all([
         User.countDocuments().catch(() => 0),
         Match.countDocuments().catch(() => 0),
@@ -82,7 +78,7 @@ Top Bowlers: ${topBowlers.length > 0 ? topBowlers.map(p => `${p.name} (${p.wicke
         Player.countDocuments().catch(() => 0)
       ]);
 
-      // Get recent matches with better error handling - updated for CustomMatch schema
+ 
       const recentMatches = await Match.find({})
         .sort({ createdAt: -1 })
         .limit(5)
@@ -92,7 +88,7 @@ Top Bowlers: ${topBowlers.length > 0 ? topBowlers.map(p => `${p.name} (${p.wicke
 
       console.log('🔍 Raw recent matches from database:', JSON.stringify(recentMatches, null, 2));
 
-      // Get top performing players - updated for actual Player schema
+
       const topPlayers = await Player.find({
           $or: [
             { 'runs': { $gt: 0 } },
@@ -157,18 +153,17 @@ async function getAppAnalytics() {
   const cacheKey = "app_analytics";
   const cached = getCachedData(cacheKey);
   
-  // Temporarily disable cache to see fresh data
-  // if (cached) return cached;
+
 
   try {
     console.log("🔄 Fetching comprehensive app analytics...");
 
-    // Get current date for today's data
+
     const today = new Date();
     const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const yesterday = new Date(startOfToday.getTime() - 24 * 60 * 60 * 1000);
 
-    // Fetch all data with proper error handling
+
     const [
       totalUsers,
       totalMatches,
@@ -186,13 +181,13 @@ async function getAppAnalytics() {
       Team.countDocuments().catch(() => 0),
       Player.countDocuments().catch(() => 0),
       
-      // Live matches - updated for CustomMatch schema
+
       Match.find({ status: "live" })
         .select('title teams currentScore status result')
         .lean()
         .catch(() => []),
         
-      // Today's matches - updated for CustomMatch schema
+
       Match.find({ 
         createdAt: { $gte: startOfToday },
         status: { $in: ['live', 'completed'] }
@@ -201,7 +196,7 @@ async function getAppAnalytics() {
         .lean()
         .catch(() => []),
         
-      // Recent matches (last 7 days) - updated for CustomMatch schema
+
       Match.find({ 
         createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
       })
@@ -211,7 +206,7 @@ async function getAppAnalytics() {
         .lean()
         .catch(() => []),
         
-      // Top batsmen - updated for actual Player schema
+ 
       Player.find({ 'runs': { $gt: 0 } })
         .sort({ 'runs': -1 })
         .limit(5)
@@ -219,7 +214,7 @@ async function getAppAnalytics() {
         .lean()
         .catch(() => []),
         
-      // Top bowlers - updated for actual Player schema  
+ 
       Player.find({ 'wickets': { $gt: 0 } })
         .sort({ 'wickets': -1 })
         .limit(5)
@@ -227,7 +222,7 @@ async function getAppAnalytics() {
         .lean()
         .catch(() => []),
         
-      // Users by role
+
       User.aggregate([
         { $group: { _id: "$role", count: { $sum: 1 } } }
       ]).catch(() => [])
@@ -249,7 +244,7 @@ async function getAppAnalytics() {
         live: liveMatches.length,
         today: todayMatches.length,
         recent: recentMatches.slice(0, 5).map(match => {
-          // Debug logging to see what we actually get
+
           console.log('🔍 Debug match data:', {
             title: match.title,
             teams: match.teams,
@@ -260,12 +255,12 @@ async function getAppAnalytics() {
             team1: match.teams && match.teams[1] ? match.teams[1] : 'not found'
           });
 
-          // Handle multiple possible team structure formats
+
           let teamsDisplay = 'Match';
           
           if (match.teams && Array.isArray(match.teams)) {
             if (match.teams.length >= 2) {
-              // Try different possible structures
+
               const team1 = match.teams[0];
               const team2 = match.teams[1];
               
@@ -274,16 +269,16 @@ async function getAppAnalytics() {
               
               if (typeof team1 === 'object' && team1 !== null && team1.name && 
                   typeof team2 === 'object' && team2 !== null && team2.name) {
-                // Structure: [{ name: "Team A", players: [...] }, { name: "Team B", players: [...] }]
+
                 teamsDisplay = `${team1.name} vs ${team2.name}`;
-                console.log('✅ Successfully extracted team names:', teamsDisplay);
+                console.log('Successfully extracted team names:', teamsDisplay);
               } else if (typeof team1 === 'string' && typeof team2 === 'string') {
-                // Structure: ["Team A", "Team B"]
+
                 teamsDisplay = `${team1} vs ${team2}`;
-                console.log('✅ Teams are strings:', teamsDisplay);
+                console.log('Teams are strings:', teamsDisplay);
               } else {
-                // Debug what we actually got
-                console.log('❌ Unexpected team structure:', {
+
+                console.log('Unexpected team structure:', {
                   team1Type: typeof team1,
                   team2Type: typeof team2,
                   team1Keys: team1 ? Object.keys(team1) : 'null',
@@ -292,13 +287,13 @@ async function getAppAnalytics() {
                 teamsDisplay = match.title || 'Unknown Match';
               }
             } else {
-              console.log('❌ Not enough teams in array:', match.teams.length);
+              console.log(' Not enough teams in array:', match.teams.length);
             }
           } else {
-            console.log('❌ Teams is not an array:', { teams: match.teams, type: typeof match.teams });
+            console.log(' Teams is not an array:', { teams: match.teams, type: typeof match.teams });
           }
           
-          // If still generic, try using title
+
           if (teamsDisplay === 'Match' && match.title) {
             teamsDisplay = match.title;
             console.log('🔄 Falling back to title:', teamsDisplay);
@@ -376,7 +371,7 @@ async function getAppAnalytics() {
     setCachedData(cacheKey, analytics);
     return analytics;
   } catch (error) {
-    console.error("❌ Error fetching app analytics:", error);
+    console.error(" Error fetching app analytics:", error);
     return {
       users: { total: 0, activeToday: 0 },
       matches: { total: 0, live: 0, today: 0, recent: [] },
@@ -390,13 +385,13 @@ async function getAppAnalytics() {
 
 async function getMatchInsights(matchId = null) {
   try {
-    console.log(`🏏 Fetching match insights${matchId ? ` for match: ${matchId}` : ' for recent matches'}`);
+    console.log(` Fetching match insights${matchId ? ` for match: ${matchId}` : ' for recent matches'}`);
     
     let query = {};
     if (matchId) {
       query._id = matchId;
     } else {
-      // Get matches from last 24 hours
+
       query = { 
         createdAt: { 
           $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) 
@@ -404,7 +399,7 @@ async function getMatchInsights(matchId = null) {
       };
     }
 
-    // Updated for CustomMatch schema - teams field contains arrays of players as strings
+
     const matches = await Match.find(query)
       .select('title teams currentScore status result createdAt')
       .sort({ createdAt: -1 })
@@ -445,7 +440,7 @@ async function getMatchInsights(matchId = null) {
       };
     });
   } catch (error) {
-    console.error("❌ Error fetching match insights:", error);
+    console.error(" Error fetching match insights:", error);
     return [{
       error: "Unable to fetch match data",
       message: "Database connection issue or no matches available"
@@ -458,14 +453,13 @@ function getMatchTopPerformer(players) {
     return "No player data available";
   }
 
-  // Find top batsman
   const topBatsman = players.reduce((top, player) => {
     const currentRuns = player.battingStats?.totalRuns || 0;
     const topRuns = top.battingStats?.totalRuns || 0;
     return currentRuns > topRuns ? player : top;
   }, players[0]);
 
-  // Find top bowler
+
   const topBowler = players.reduce((top, player) => {
     const currentWickets = player.bowlingStats?.totalWickets || 0;
     const topWickets = top.bowlingStats?.totalWickets || 0;
@@ -486,7 +480,7 @@ function getMatchTopPerformer(players) {
   }
 }
 
-// Helper function to get today's matches specifically - updated for CustomMatch schema
+
 async function getTodayMatches() {
   try {
     const today = new Date();
@@ -505,7 +499,7 @@ async function getTodayMatches() {
   }
 }
 
-// Helper function to clear cache manually if needed
+
 function clearCache() {
   cache.data = {};
   cache.timestamp = {};

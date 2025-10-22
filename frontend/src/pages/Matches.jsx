@@ -1065,3 +1065,494 @@ const Matches = () => {
 };
 
 export default Matches;
+////////////////////////////////////////////////////////////////
+
+// src/pages/Matches.jsx
+// import React, { useEffect, useRef, useState } from "react";
+// import axios from "axios";
+// import { io } from "socket.io-client";
+// import { useNavigate } from "react-router-dom";
+
+// /* Components */
+// import MatchFormModal from "../components/matches/MatchFormModal";
+// import VideoStream from "../components/matches/VideoStream";
+// import UploadProgressBar from "../components/matches/UploadProgressBar";
+// import EnhancedVideoPlayer from "../components/matches/EnhancedVideoPlayer";
+// import PredictionPanel from "../components/matches/PredictionPanel";
+
+// /* Existing components */
+// import CommentaryFeed from "../components/CommentaryFeed";
+// import ScoreUpdater from "../components/ScoreUpdater";
+// import StreamViewer from "../components/StreamViewer";
+
+// /* API base */
+// const BASE_URL = "http://localhost:3018";
+// const API_GET_MATCHES = `${BASE_URL}/getAllMatches`;
+// const API_MATCHES = `${BASE_URL}/api/matches`;
+
+// /* ---------------------------
+//    Streaming hook
+//    --------------------------- */
+// const useStreamRecorder = ({ createdMatch, token, onUploadProgress, onRecordingUploaded, refreshMatch }) => {
+//   const localVideoRef = useRef(null);
+//   const mediaRecorder = useRef(null);
+//   const peerConnection = useRef(null);
+//   const [isStreaming, setIsStreaming] = useState(false);
+//   const [uploadProgress, setUploadProgress] = useState(0);
+//   const [recordingId, setRecordingId] = useState(null);
+
+//   const startStreaming = async () => {
+//     if (!createdMatch) {
+//       alert("Create or open a match first.");
+//       return;
+//     }
+
+//     try {
+//       const stream = await navigator.mediaDevices.getUserMedia({
+//         video: { width: 1280, height: 720 },
+//         audio: true,
+//       });
+
+//       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
+//       setIsStreaming(true);
+
+//       peerConnection.current = new RTCPeerConnection();
+//       stream.getTracks().forEach((track) => peerConnection.current.addTrack(track, stream));
+
+//       const options = { mimeType: "video/webm;codecs=vp9" };
+//       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+//         options.mimeType = "video/webm";
+//         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+//           options.mimeType = "video/mp4";
+//         }
+//       }
+
+//       mediaRecorder.current = new MediaRecorder(stream, options);
+//       const chunks = [];
+
+//       mediaRecorder.current.ondataavailable = (e) => {
+//         if (e.data && e.data.size > 0) chunks.push(e.data);
+//       };
+
+//       mediaRecorder.current.onstop = async () => {
+//         const blob = new Blob(chunks, { type: options.mimeType });
+//         if (blob.size === 0) return;
+
+//         try {
+//           const formData = new FormData();
+//           formData.append("recording", blob, "recording.webm");
+//           if (recordingId) formData.append("recordingId", recordingId);
+
+//           const uploadRes = await axios.post(
+//             `${API_MATCHES}/${createdMatch._id}/uploadRecording`,
+//             formData,
+//             {
+//               headers: {
+//                 Authorization: `Bearer ${token}`,
+//                 "Content-Type": "multipart/form-data",
+//               },
+//               onUploadProgress: (e) => {
+//                 const progress = Math.round((e.loaded * 100) / e.total);
+//                 setUploadProgress(progress);
+//                 onUploadProgress?.(progress);
+//               },
+//             }
+//           );
+
+//           onRecordingUploaded?.({
+//             matchId: createdMatch._id,
+//             recordingId,
+//             recordingUrl: uploadRes.data.recordingUrl,
+//           });
+
+//           await refreshMatch(createdMatch._id);
+//           setUploadProgress(0);
+//         } catch (err) {
+//           console.error("Upload failed:", err);
+//           setUploadProgress(0);
+//         }
+//       };
+
+//       mediaRecorder.current.start(1000);
+
+//       // notify backend about starting stream
+//       const startRes = await axios.post(
+//         `${API_MATCHES}/${createdMatch._id}/start-stream`,
+//         {},
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+
+//       if (startRes?.data?.recordingId) {
+//         setRecordingId(startRes.data.recordingId);
+//       }
+
+//       await refreshMatch(createdMatch._id);
+//     } catch (err) {
+//       console.error("Error starting stream:", err);
+//       alert("Failed to start streaming. Check camera/mic permissions.");
+//       setIsStreaming(false);
+//     }
+//   };
+
+//   const stopStreaming = async () => {
+//     try {
+//       const stream = localVideoRef.current?.srcObject;
+//       if (stream) {
+//         stream.getTracks().forEach((t) => t.stop());
+//         localVideoRef.current.srcObject = null;
+//       }
+
+//       if (peerConnection.current) {
+//         peerConnection.current.close();
+//         peerConnection.current = null;
+//       }
+
+//       setIsStreaming(false);
+
+//       if (mediaRecorder.current && mediaRecorder.current.state !== "inactive") {
+//         mediaRecorder.current.stop();
+//       } else if (createdMatch) {
+//         await axios.post(
+//           `${API_MATCHES}/${createdMatch._id}/stop-stream`,
+//           { recordingUrl: null },
+//           { headers: { Authorization: `Bearer ${token}` } }
+//         );
+//         await refreshMatch(createdMatch._id);
+//       }
+
+//       setRecordingId(null);
+//       setUploadProgress(0);
+//     } catch (err) {
+//       console.error("Error stopping stream:", err);
+//     }
+//   };
+
+//   return {
+//     localVideoRef,
+//     startStreaming,
+//     stopStreaming,
+//     isStreaming,
+//     uploadProgress,
+//   };
+// };
+
+// /* ---------------------------
+//    Helper utilities
+//    --------------------------- */
+// const formatOvers = (overs, balls) => {
+//   if (!balls || balls === 0) return `${overs}.0`;
+//   return `${overs}.${balls}`;
+// };
+
+// const getTeamName = (match, teamKey) => {
+//   if (!match?.teams) return "Unknown Team";
+//   if (typeof teamKey === "number") {
+//     const team = match.teams[teamKey];
+//     if (!team) return `Team ${teamKey + 1}`;
+//     if (typeof team === "string") return `Team ${teamKey + 1}`;
+//     return team.name || team.teamName || `Team ${teamKey + 1}`;
+//   }
+//   if (typeof teamKey === "string") {
+//     const teamObj = match.teams.find((team) => {
+//       if (typeof team === "object") {
+//         return team._id?.toString() === teamKey.toString() || team.teamId?.toString() === teamKey.toString();
+//       }
+//       return team.toString() === teamKey.toString();
+//     });
+//     if (teamObj) {
+//       if (typeof teamObj === "object") return teamObj.name || teamObj.teamName || "Unknown Team";
+//       const teamIndex = match.teams.findIndex((t) => ((typeof t === "string" ? t : (t._id || t.teamId))?.toString() === teamKey.toString()));
+//       return teamIndex !== -1 ? `Team ${teamIndex + 1}` : "Unknown Team";
+//     }
+//   }
+//   return "Unknown Team";
+// };
+
+// /* ---------------------------
+//    Main Component
+//    --------------------------- */
+// const Matches = () => {
+//   const navigate = useNavigate();
+//   const token = localStorage.getItem("token");
+
+//   const [matches, setMatches] = useState([]);
+//   const [loading, setLoading] = useState(false);
+
+//   const [createdMatch, setCreatedMatch] = useState(null);
+//   const [matchStatus, setMatchStatus] = useState("Live");
+//   const [showForm, setShowForm] = useState(false);
+
+//   const [liveUpdates, setLiveUpdates] = useState([]);
+//   const [aiPredictions, setAiPredictions] = useState({});
+
+//   const socketRef = useRef(null);
+
+//   const {
+//     localVideoRef,
+//     startStreaming,
+//     stopStreaming,
+//     isStreaming,
+//     uploadProgress,
+//   } = useStreamRecorder({
+//     createdMatch,
+//     token,
+//     onUploadProgress: (p) => {},
+//     onRecordingUploaded: (payload) => {
+//       socketRef.current?.emit?.("recording_uploaded", payload);
+//     },
+//     refreshMatch: async (id) => refreshMatch(id),
+//   });
+
+//   /* ---------------------------
+//      fetch matches
+//      --------------------------- */
+//   const fetchMatches = async () => {
+//     try {
+//       setLoading(true);
+//       const res = await axios.get(API_GET_MATCHES, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       setMatches(res.data || []);
+//     } catch (err) {
+//       console.error("Failed to fetch matches:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchMatches();
+//   }, []);
+
+//   /* ---------------------------
+//      socket setup
+//      --------------------------- */
+//   useEffect(() => {
+//     socketRef.current = io(BASE_URL, { reconnectionAttempts: 5, timeout: 10000 });
+//     const s = socketRef.current;
+
+//     s.on("connect_error", (err) => console.error("Socket connect error:", err));
+
+//     s.on("score_update", (data) => {
+//       if (!createdMatch) return;
+//       if (data.matchId === createdMatch._id) {
+//         setCreatedMatch((prev) => ({ ...prev, ...data.updatedMatch }));
+//       }
+//     });
+
+//     s.on("match-ball", (data) => {
+//       setLiveUpdates((prev) => [...prev, data]);
+//     });
+
+//     s.on("prediction_update", (data) => {
+//       if (!createdMatch) return;
+//       if (data.matchId === createdMatch._id) {
+//         setAiPredictions((prev) => ({ ...prev, [createdMatch._id]: data }));
+//       }
+//     });
+
+//     return () => s.disconnect();
+//   }, [createdMatch]);
+
+//   const refreshMatch = async (matchId) => {
+//     try {
+//       const res = await axios.get(API_GET_MATCHES, { headers: { Authorization: `Bearer ${token}` } });
+//       const allMatches = res.data || [];
+//       setMatches(allMatches);
+//       const current = allMatches.find((m) => m._id === matchId);
+//       if (current) {
+//         setCreatedMatch(current);
+//         setMatchStatus(current.status);
+//       }
+//     } catch (err) {
+//       console.error("refreshMatch error", err);
+//     }
+//   };
+
+//   const handleMatchCreated = async (match) => {
+//     setCreatedMatch(match);
+//     setMatchStatus(match.status);
+//     setShowForm(false);
+//     await fetchMatches();
+//   };
+
+//   const handleScoreUpdated = async (updatedMatch) => {
+//     setCreatedMatch(updatedMatch);
+//     setMatchStatus(updatedMatch.status);
+//     await fetchMatches();
+//   };
+
+//   const handlePredictionUpdate = (prediction) => {
+//     if (!createdMatch) return;
+//     setAiPredictions((prev) => ({ ...prev, [createdMatch._id]: prediction }));
+//   };
+
+//   const completedMatches = matches.filter((m) => m.status === "Completed");
+//   const liveMatches = matches.filter((m) => m.status === "Live" && m._id !== createdMatch?._id);
+
+//   /* ---------------------------
+//      render
+//      --------------------------- */
+//   return (
+//     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+//       <div className="flex items-center justify-between mb-6">
+//         <h1 className="text-3xl font-bold text-gray-900">Matches</h1>
+
+//         <div className="flex items-center gap-3">
+//           <button
+//             onClick={() => setShowForm(true)}
+//             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+//           >
+//             Create Match
+//           </button>
+
+//           {showForm && (
+//             <MatchFormModal
+//               isOpen={showForm}
+//               onClose={() => setShowForm(false)}
+//               onMatchCreated={handleMatchCreated}
+//             />
+//           )}
+//         </div>
+//       </div>
+
+//       {createdMatch ? (
+//         <div className="mt-6 p-6 bg-white rounded-2xl shadow-xl border border-gray-100">
+//           <div className="flex flex-col lg:flex-row gap-6">
+//             <div className="flex-1">
+//               <h2 className="text-2xl font-bold text-indigo-600">{createdMatch.title}</h2>
+//               <div className="mt-3 flex items-center gap-3">
+//                 <span className="text-sm text-gray-600">Status:</span>
+//                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+//                   matchStatus === "Completed" ? "bg-green-100 text-green-700" :
+//                   matchStatus === "Live" ? "bg-red-100 text-red-700" :
+//                   "bg-yellow-100 text-yellow-700"
+//                 }`}>{matchStatus === "Completed" ? "Match Over" : matchStatus}</span>
+//               </div>
+
+//               <div className="mt-4 max-w-md">
+//                 <PredictionPanel
+//                   prediction={aiPredictions?.[createdMatch._id]?.predictionText || null}
+//                   currentScore={createdMatch.currentScore ? `${createdMatch.currentScore.runs}/${createdMatch.currentScore.wickets}` : null}
+//                 />
+//               </div>
+
+//               <div className="mt-6">
+//                 <VideoStream
+//                   isStreaming={isStreaming}
+//                   startStreaming={startStreaming}
+//                   stopStreaming={stopStreaming}
+//                   localVideoRef={localVideoRef}
+//                 />
+//                 <UploadProgressBar progress={uploadProgress} />
+//               </div>
+//             </div>
+
+//             <div className="w-full lg:w-96">
+//               <StreamViewer match={createdMatch} onMatchUpdate={() => refreshMatch(createdMatch._id)} />
+//               <div className="mt-4">
+//                 {matchStatus !== "Completed" && createdMatch.currentScore && (
+//                   <ScoreUpdater match={createdMatch} onScoreUpdated={handleScoreUpdated} />
+//                 )}
+//               </div>
+
+//               {matchStatus === "Live" && (
+//                 <div className="mt-4">
+//                   <CommentaryFeed matchId={createdMatch._id} isLive={true} />
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+
+//           {createdMatch?.pastStreams?.length > 0 && (
+//             <div className="mt-6 bg-gray-50 rounded-xl p-4">
+//               <h3 className="font-semibold mb-3">Past Streams & Highlights</h3>
+//               <div className="space-y-4">
+//                 {createdMatch.pastStreams.map((stream, i) => (
+//                   <div key={stream.recordingId || i} className="bg-white p-4 rounded-lg shadow-sm">
+//                     <div className="flex justify-between items-center">
+//                       <div className="text-xs text-gray-600">
+//                         <div>Started: {new Date(stream.startedAt).toLocaleString()}</div>
+//                         {stream.endedAt && <div>Ended: {new Date(stream.endedAt).toLocaleString()}</div>}
+//                       </div>
+//                       <div className="text-right">
+//                         <span className={`px-2 py-1 rounded text-xs ${
+//                           stream.uploadStatus === "completed" ? "bg-green-100 text-green-800" :
+//                           stream.uploadStatus === "processing" ? "bg-yellow-100 text-yellow-800" :
+//                           "bg-gray-100 text-gray-800"
+//                         }`}>{stream.uploadStatus || "Unknown"}</span>
+//                       </div>
+//                     </div>
+
+//                     <div className="mt-3">
+//                       {stream.recordingUrl && stream.processed ? (
+//                         <EnhancedVideoPlayer
+//                           videoUrl={stream.recordingUrl}
+//                           title="Highlight"
+//                           description={`Size: ${stream.fileSize ? (stream.fileSize / (1024*1024)).toFixed(1) + " MB" : "Unknown"}`}
+//                         />
+//                       ) : (
+//                         <p className="text-sm text-gray-500 mt-2">
+//                           {stream.uploadStatus === "pending" || stream.uploadStatus === "processing" ? `Processing ${stream.uploadProgress || 0}%` : "Recording not available"}
+//                         </p>
+//                       )}
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+//         </div>
+//       ) : (
+//         <>
+//           {liveMatches.length > 0 && (
+//             <section className="mt-8">
+//               <h2 className="text-2xl font-bold mb-4">Live Matches</h2>
+//               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+//                 {liveMatches.map((m) => (
+//                   <div key={m._id} className="p-4 bg-white rounded-xl shadow">
+//                     <h3 className="text-lg font-semibold text-red-600">{m.title}</h3>
+//                     <p className="text-sm text-gray-600 mb-2">Status: <span className="font-medium">{m.status}</span></p>
+//                     {m.currentScore && <p className="text-sm text-gray-700 mb-2">{getTeamName(m, m.currentScore.team)} batting: {m.currentScore.runs}/{m.currentScore.wickets} ({formatOvers(m.currentScore.overs, m.currentScore.balls)})</p>}
+//                     <div className="mt-2">
+//                       <StreamViewer match={m} onMatchUpdate={fetchMatches} />
+//                       <button onClick={() => { setCreatedMatch(m); setMatchStatus(m.status); }} className="mt-3 px-3 py-1 bg-indigo-600 text-white rounded">Open</button>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </section>
+//           )}
+
+//           {completedMatches.length > 0 && (
+//             <section className="mt-10">
+//               <h2 className="text-2xl font-bold mb-4">Completed Matches</h2>
+//               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+//                 {completedMatches.map((m) => (
+//                   <div key={m._id} className="p-4 bg-white rounded-xl shadow">
+//                     <h3 className="text-lg font-semibold text-indigo-600">{m.title}</h3>
+//                     <p className="text-sm text-gray-600 mb-2">Result: <span className="font-medium">{m.result || "Completed"}</span></p>
+//                     <div className="mt-2">
+//                       <StreamViewer match={m} onMatchUpdate={fetchMatches} />
+//                       <button onClick={() => { setCreatedMatch(m); setMatchStatus(m.status); }} className="mt-3 px-3 py-1 bg-indigo-600 text-white rounded">Open</button>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </section>
+//           )}
+
+//           {loading && (
+//             <div className="text-center mt-8">
+//               <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+//               <p className="text-gray-500 mt-2 text-lg">Loading matches...</p>
+//             </div>
+//           )}
+//         </>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Matches;

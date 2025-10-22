@@ -30,7 +30,7 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('Created uploads/recordings directory');
 }
 
-// ADD MULTER CONFIGURATION for video uploads
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDir)
@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 500 * 1024 * 1024, // 500MB limit
+    fileSize: 500 * 1024 * 1024, 
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('video/')) {
@@ -56,7 +56,6 @@ const upload = multer({
 });
 
 
-// ADVANCED SOCKET.IO CONFIGURATION (same as working version)
 const io = new Server(server, {
   cors: {
     origin: [
