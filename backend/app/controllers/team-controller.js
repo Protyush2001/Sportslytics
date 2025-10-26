@@ -4,9 +4,6 @@ const Player = require('../models/player-model');
 const mongoose = require("mongoose");
 const teamCtlr = {};
 
-//  Create Team
-
-
 
 teamCtlr.createTeam = async (req, res) => {
   const payload = {
@@ -24,7 +21,7 @@ teamCtlr.createTeam = async (req, res) => {
   }
 
   try {
-    // ✅ Create the team
+
 const newTeam = new Team({
   name: value.name,
   coach: value.coach,
@@ -35,7 +32,7 @@ const newTeam = new Team({
 
     await newTeam.save();
 
-    // ✅ Update each player's teamId
+
     await Player.updateMany(
       { _id: { $in: value.players } },
       { $set: { teamId: newTeam._id } }
@@ -48,107 +45,14 @@ const newTeam = new Team({
 };
 
 
-
-// teamCtlr.createTeam = async (req, res) => {
-//   const payload = {
-//     ...req.body,
-//     createdBy: req.user._id, // Track ownership
-//   };
-
-//   const { error, value } = teamValidationSchema.validate(payload);
-//   if (error) {
-//     return res.status(400).json({ error: error.details[0].message });
-//   }
-
-//   // Enforce max 20 players
-//   if (Array.isArray(value.players) && value.players.length > 20) {
-//     return res.status(400).json({ error: "Maximum 20 players allowed per team." });
-//   }
-
-//   // ✅ Prevent assigning already-assigned players
-//   const assignedTeams = await Team.find({}, "players");
-//   const assignedIds = assignedTeams.flatMap((team) =>
-//     team.players.map((id) => String(id))
-//   );
-
-//   const duplicateIds = value.players.filter((id) =>
-//     assignedIds.includes(String(id))
-//   );
-
-//   if (duplicateIds.length > 0) {
-//     // console.log("Duplicate player assignment attempt:", duplicateIds);
-//     return res.status(400).json({
-//       error: "Some selected players are already assigned to another team.",
-//       duplicates: duplicateIds,
-//     });
-//   }
-
-//   try {
-//     const newTeam = new Team({
-//       name: value.name,
-//       coach: value.coach,
-//       players: value.players.map((id) => mongoose.Types.ObjectId(id)),
-//       createdBy: req.user._id,
-//     });
-
-//     await newTeam.save();
-//     res.status(201).json(newTeam);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
-// teamCtlr.createTeam = async (req, res) => {
-//   const payload = {
-//     ...req.body,
-//     createdBy: req.user._id, // Track ownership
-//   };
-
-//   const { error, value } = teamValidationSchema.validate(payload);
-//   if (error) {
-//     return res.status(400).json({ error: error.details[0].message });
-//   }
-
-//   // Enforce max 20 players
-//   if (value.players && value.players.length > 20) {
-//     return res.status(400).json({ error: "Maximum 20 players allowed per team." });
-//   }
-
-//   // ✅ Prevent assigning already-assigned players
-//   const assignedPlayers = await Team.find({}, "players");
-//   const assignedIds = assignedPlayers.flatMap((team) =>
-//     team.players.map((id) => String(id))
-//   );
-
-//   const duplicateIds = value.players.filter((id) =>
-//     assignedIds.includes(String(id))
-//   );
-
-//   if (duplicateIds.length > 0) {
-//     return res.status(400).json({
-//       error: "Some selected players are already assigned to another team.",
-//       duplicates: duplicateIds,
-//     });
-//   }
-
-//   try {
-//     const newTeam = new Team(value);
-//     await newTeam.save();
-//     res.status(201).json(newTeam);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
-//  Get All Teams (Memory-Safe)
 teamCtlr.getTeams = async (req, res) => {
   try {
     const teams = await Team.find()
       .populate({
         path: 'players',
-        select: 'name role image', // Only fetch essential fields
+        select: 'name role image', 
       })
-      .lean(); // Return plain JS objects for lower memory usage
+      .lean(); 
 
     res.status(200).json(teams);
   } catch (err) {
@@ -210,11 +114,11 @@ teamCtlr.addPlayersToTeam = async (req, res) => {
   }
 
   try {
-    // Validate team
+
     const team = await Team.findById(teamId);
     if (!team) return res.status(404).json({ error: "Team not found." });
 
-    // Filter out already assigned players
+
     const unassignedPlayers = await Player.find({
       _id: { $in: players },
       teamId: null,
@@ -226,20 +130,20 @@ teamCtlr.addPlayersToTeam = async (req, res) => {
       return res.status(400).json({ error: "All selected players are already assigned." });
     }
 
-    // Check team size limit
+
     const totalAfterAdd = team.players.length + unassignedIds.length;
     if (totalAfterAdd > 20) {
       return res.status(400).json({ error: "Team cannot exceed 20 players." });
     }
 
-    // Add players to team
+    
     await Team.findByIdAndUpdate(
       teamId,
       { $addToSet: { players: { $each: unassignedIds } } },
       { new: true }
     );
 
-    // Update each player's teamId
+
     await Player.updateMany(
       { _id: { $in: unassignedIds } },
       { $set: { teamId: teamId } }
@@ -272,23 +176,7 @@ teamCtlr.getPointsTable = async (req, res) => {
   }
 };
 
-// Fixed Team Controller - getPointsTable
-// teamCtlr.getPointsTable = async (req, res) => {
-//   try {
-//     const teams = await Team.find()
-//       .select('name matchesPlayed wins losses points')
-//       .sort({ points: -1, wins: -1 }) 
-//       .lean();
-//       if(!teams){
-//         return res.status(404).json({error:"No teams found"});
-//       }
-    
-//     res.status(200).json(teams);
-//   } catch (err) {
-//     console.log('Error fetching points table:', err);
-//     res.status(500).json({ error: 'Failed to fetch points table' });
-//   }
-// };
+
 
 
 

@@ -6,7 +6,7 @@ import ReviewCarousel from "../components/ReviewCarousel";
 const Home = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
+
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12 text-center shadow-md">
         <h1 className="text-4xl md:text-5xl font-extrabold">🏏 Cricket Analytics App</h1>
         <p className="text-lg mt-3 max-w-2xl mx-auto">
@@ -14,7 +14,7 @@ const Home = () => {
         </p>
       </header>
 
-      {/* Main Body */}
+
       <Body />
 
       {/* Review Section */}

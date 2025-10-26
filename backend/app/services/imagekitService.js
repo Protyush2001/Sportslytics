@@ -9,7 +9,7 @@ class ImageKitService {
     try {
       const fileBuffer = fs.readFileSync(filePath);
       
-      // Get file extension from original file
+
       const fileExtension = path.extname(filePath).toLowerCase();
       const finalFileName = fileName.endsWith(fileExtension) 
         ? fileName 
@@ -26,17 +26,17 @@ class ImageKitService {
       // Clean up local file after upload
       fs.unlinkSync(filePath);
       
-      // Generate the proper video URL for streaming
+
       const videoUrl = this.generateVideoUrl(response.filePath);
       
       return {
-        url: videoUrl, // Use the processed video URL instead of direct URL
+        url: videoUrl, 
         fileId: response.fileId,
         name: response.name,
         size: response.size,
         filePath: response.filePath,
         mimeType: this.getMimeType(fileExtension),
-        originalUrl: response.url // Keep original for reference
+        originalUrl: response.url 
       };
     } catch (error) {
       console.error('ImageKit upload error:', error);
@@ -44,12 +44,12 @@ class ImageKitService {
     }
   }
 
-  // Generate proper video URL for streaming
+  
   static generateVideoUrl(filePath) {
-    // Remove leading slash if present
+
     const cleanPath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
     
-    // Generate URL that ends with /ik-video.mp4 for video processing
+
     const videoUrl = imagekit.url({
       path: cleanPath,
       transformation: [{
@@ -57,7 +57,7 @@ class ImageKitService {
         quality: '80'
       }],
       signed: false,
-      expireSeconds: 3600 // 1 hour expiry
+      expireSeconds: 3600 
     });
     
     console.log('🎬 Generated video URL:', videoUrl);
@@ -67,14 +67,13 @@ class ImageKitService {
   static getMimeType(extension) {
     const mimeTypes = {
       '.mp4': 'video/mp4',
-      '.webm': 'video/mp4', // Force mp4 for streaming compatibility
+      '.webm': 'video/mp4', 
       '.mov': 'video/mp4',
       '.avi': 'video/mp4'
     };
     return mimeTypes[extension] || 'video/mp4';
   }
 
-  // ... rest of your methods (deleteVideo, getVideoUrl, etc.)
     static async deleteVideo(fileId) {
     try {
       await imagekit.deleteFile(fileId);
@@ -95,7 +94,6 @@ class ImageKitService {
     }
   }
 
-  // Test if file is accessible
   static async testFileAccessibility(url) {
     try {
       const response = await fetch(url, { method: 'HEAD' });

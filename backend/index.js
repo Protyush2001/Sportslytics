@@ -21,6 +21,7 @@ const predictionRoutes = require('./app/routes/predictionRoutes');
 const paymentRoute = require('./app/routes/paymentRoute');
 const registerChatbotHandlers = require("./app/chatbot/chatbotSocket");
 const customMatch = require('./app/models/customMatch-model');
+const reviewCtlr = require('./app/controllers/reviewController');
 
 const app = express();
 const server = http.createServer(app);
@@ -74,7 +75,7 @@ const io = new Server(server, {
 
 const port = process.env.PORT || 3000;
 
-// Middleware
+
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 configDB();
@@ -83,7 +84,7 @@ configDB();
 io.on('connection', (socket) => {
   console.log(' Socket connected:', socket.id);
 
-  // --- Room joining ---
+
   socket.on('join_match', (matchId) => {
     socket.join(`match_${matchId}`);
     console.log(`Socket ${socket.id} joined room match_${matchId}`);
@@ -94,7 +95,7 @@ io.on('connection', (socket) => {
     console.log(` Socket ${socket.id} left room match_${matchId}`);
   });
 
-  // --- WebRTC signaling for streaming ---
+
   socket.on('offer', ({ to, sdp }) => {
     socket.to(to).emit('offer', { from: socket.id, sdp });
   });
@@ -111,13 +112,13 @@ io.on('connection', (socket) => {
     socket.to(`match_${data.matchId}`).emit('stream-ended', data);
   });
 
-  // --- Live Commentary ---
+
   socket.on('sendCommentary', ({ matchId, commentary }) => {
     console.log(` Commentary for match ${matchId}: ${commentary}`);
     io.to(`match_${matchId}`).emit('receiveCommentary', commentary);
   });
 
-  // --- Live Score Update ---
+ 
   socket.on('updateScore', (scoreData) => {
     io.emit('scoreUpdated', scoreData);
   });
@@ -141,7 +142,7 @@ app.get('/getAllMatches', customMatchController.getAllMatches);
 app.patch('/matches/:id/ball', customMatchController.updateBall);
 
 
-///////
+
 app.post('/api/matches/:matchId/uploadRecording', 
   authenticateUser, 
   upload.single('recording'), 
@@ -178,13 +179,15 @@ app.use('/api/predictions', predictionRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/teams', teamRoutes);
 
-// --- Payment Route ---
+
 app.use('/api/payment', paymentRoute);
 
-// --- Static File Serving (for uploads) ---
+
 app.use('/uploads', express.static('uploads'));
 
-// --- Health Check Routes ---
+app.post('/api/reviews', authenticateUser, reviewCtlr.createReview);
+
+
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
@@ -202,7 +205,7 @@ app.get('/socket-health', (req, res) => {
   });
 });
 
-// --- Server Start ---
+
 server.listen(port, () => {
   console.log(` Server running on port ${port}`);
   console.log(`Socket.IO active at http://localhost:${port}/socket.io/`);

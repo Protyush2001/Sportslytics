@@ -19,9 +19,9 @@ function buildPrompt(message, context = {}) {
   let systemPrompt = `You are CricketBot, an intelligent cricket assistant for a comprehensive cricket management platform. You have access to real-time data and can provide detailed insights about players, teams, matches, and statistics.
 
 CURRENT CONTEXT:
-📅 Today: ${formattedDate} at ${currentTime} (IST)
-🏏 Platform: Professional Cricket Management System
-${userName ? `👤 User: ${userName} (${userRole || 'User'})` : ''}
+ Today: ${formattedDate} at ${currentTime} (IST)
+ Platform: Professional Cricket Management System
+${userName ? ` User: ${userName} (${userRole || 'User'})` : ''}
 
 LIVE PLATFORM DATA:
 ${formatAppContext(appContext)}
@@ -65,15 +65,15 @@ function formatAppContext(appContext) {
 
   const { users, matches, teams, players, liveData } = appContext;
   
-  let formatted = `🏏 REAL-TIME CRICKET DATA (Updated Now):
+  let formatted = `REAL-TIME CRICKET DATA (Updated Now):
 
-📊 PLATFORM OVERVIEW:
+ PLATFORM OVERVIEW:
 • Total Users: ${users?.total || 0} (Today's Activity: ${users?.activeToday || 0})
 • Total Teams: ${teams?.total || 0} (Avg: ${teams?.avgPlayersPerTeam || 0} players/team)
 • Registered Players: ${players?.total || 0}
 • Total Matches: ${matches?.total || 0}`;
 
-  // Live Matches Section
+
   if (liveData?.liveMatches?.length > 0) {
     formatted += `\n\n LIVE MATCHES RIGHT NOW:`;
     liveData.liveMatches.forEach((match, index) => {
@@ -83,7 +83,7 @@ function formatAppContext(appContext) {
     formatted += `\n\n LIVE MATCHES: None currently in progress`;
   }
 
-  // Today's Matches
+
   if (liveData?.todayMatches?.length > 0) {
     formatted += `\n\n TODAY'S MATCHES:`;
     liveData.todayMatches.forEach((match, index) => {
@@ -93,10 +93,10 @@ function formatAppContext(appContext) {
       }
     });
   } else {
-    formatted += `\n\n📅 TODAY'S MATCHES: No matches scheduled or completed today`;
+    formatted += `\n\n TODAY'S MATCHES: No matches scheduled or completed today`;
   }
 
-  // Top Performers
+
   if (players?.topPerformers?.topBatsmen?.length > 0) {
     formatted += `\n\n TOP BATSMEN (Current Season):`;
     players.topPerformers.topBatsmen.slice(0, 5).forEach((player, index) => {
@@ -115,7 +115,7 @@ function formatAppContext(appContext) {
     });
   }
 
-  // Recent Match Results
+
   if (matches?.recent?.length > 0) {
     formatted += `\n\n RECENT MATCH RESULTS:`;
     matches.recent.slice(0, 5).forEach((match, index) => {
@@ -131,7 +131,7 @@ function formatAppContext(appContext) {
     });
   }
 
-  // Data Quality Check
+
   const hasLiveData = (liveData?.liveMatches?.length > 0) || (liveData?.todayMatches?.length > 0);
   const hasPlayerData = (players?.topPerformers?.topBatsmen?.length > 0) || (players?.topPerformers?.topBowlers?.length > 0);
   const hasMatchData = matches?.recent?.length > 0;
@@ -142,7 +142,7 @@ function formatAppContext(appContext) {
 • Off-season period with no recent matches
 • Database sync in progress`;
   } else {
-    formatted += `\n\n✅ DATA STATUS: Live cricket data successfully loaded and current`;
+    formatted += `\n\n DATA STATUS: Live cricket data successfully loaded and current`;
   }
 
   return formatted;

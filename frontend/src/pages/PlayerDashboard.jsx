@@ -80,13 +80,13 @@ export default function PlayerDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
+
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-800">Player Dashboard</h2>
         <p className="text-lg text-gray-500">Welcome, {player.name}</p>
       </div>
 
-      {/* Profile Section */}
+
       <div className="flex flex-col md:flex-row items-center gap-6 bg-white shadow-md rounded-lg p-6">
         <img
           src={player.image}

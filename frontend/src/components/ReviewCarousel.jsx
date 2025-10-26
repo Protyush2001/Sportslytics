@@ -44,17 +44,50 @@ const ReviewCarousel = () => {
 
   const visibleReviews = reviews.slice(index, index + cardsPerPage);
 
-  const handleAddReview = () => {
-    if (newReview.name && newReview.text) {
-      setReviews((prev) => [...prev, newReview]);
-      setNewReview({ name: "", rating: 5, text: "" });
+  // const handleAddReview = () => {
+  //   if (newReview.name && newReview.text) {
+  //     setReviews((prev) => [...prev, newReview]);
+  //     setNewReview({ name: "", rating: 5, text: "" });
+  //     setIsModalOpen(false);
+  //   }
+  // };
+ const handleAddReview = async () => {
+  if (newReview.name && newReview.text) {
+    try {
+      const response = await fetch('http://localhost:3018/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` 
+        },
+        body: JSON.stringify({
+          name: newReview.name,
+          text: newReview.text,
+          rating: newReview.rating
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit review');
+      }
+
+      const savedReview = await response.json();
+      setReviews((prev) => [...prev, { user: newReview.user, ...savedReview }]);
+      setNewReview({ user: "", rating: 5, text: "" });
       setIsModalOpen(false);
+    } catch (err) {
+      console.error('Review submission error:', err.message);
+      alert('Could not submit review. Please try again.');
     }
-  };
+  }
+};
+
+
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Carousel */}
+
       <div className="flex items-center justify-between w-full max-w-6xl mb-4 px-4">
         <button
           onClick={handlePrev}
@@ -88,7 +121,6 @@ const ReviewCarousel = () => {
         </button>
       </div>
 
-      {/* Rate Us Button */}
       <button
         onClick={() => setIsModalOpen(true)}
         className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -96,7 +128,7 @@ const ReviewCarousel = () => {
         ⭐ Rate Us
       </button>
 
-      {/* Modal for Adding Review */}
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96">

@@ -9,7 +9,7 @@ const activeSessions = new Map();
 
 function registerChatbotHandlers(io) {
   io.on("connection", (socket) => {
-    console.log(` Chatbot socket connected: ${socket.id}`);
+    console.log(`Chatbot socket connected: ${socket.id}`);
     
 
     activeSessions.set(socket.id, {
@@ -52,7 +52,7 @@ function registerChatbotHandlers(io) {
           }
         });
         
-        console.log(`🔐 User authenticated: ${user.name} (${user.role})`);
+        console.log(`User authenticated: ${user.name} (${user.role})`);
         
       } catch (error) {
         console.error("Authentication error:", error);
@@ -75,7 +75,7 @@ function registerChatbotHandlers(io) {
           return;
         }
 
-        console.log(`💬 Message from ${session?.userName || socket.id}: ${message.substring(0, 100)}...`);
+        console.log(`Message from ${session?.userName || socket.id}: ${message.substring(0, 100)}...`);
 
 
         socket.emit("botTyping", { isTyping: true });
@@ -183,7 +183,7 @@ function registerChatbotHandlers(io) {
 
     socket.on("chatFeedback", (data) => {
       const { messageId, rating, comment } = data;
-      console.log(`📝 Feedback received: Rating ${rating}/5 for message ${messageId}`);
+      console.log(`Feedback received: Rating ${rating}/5 for message ${messageId}`);
 
       
       socket.emit("feedbackReceived", {

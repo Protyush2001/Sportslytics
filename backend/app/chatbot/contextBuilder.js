@@ -13,7 +13,7 @@ const cache = {
 
 function getCachedData(key) {
   if (cache.data[key] && Date.now() - cache.timestamp[key] < cache.TTL) {
-    console.log(`📋 Using cached data for: ${key}`);
+    console.log(` Using cached data for: ${key}`);
     return cache.data[key];
   }
   return null;
@@ -22,7 +22,7 @@ function getCachedData(key) {
 function setCachedData(key, data) {
   cache.data[key] = data;
   cache.timestamp[key] = Date.now();
-  console.log(`💾 Cached data for: ${key}`);
+  console.log(` Cached data for: ${key}`);
 }
 
 async function getUserContext(role, userId) {
@@ -33,7 +33,7 @@ if (cached) return cached;
   let context = "";
 
   try {
-    console.log(`🔍 Fetching user context for role: ${role}, userId: ${userId}`);
+    console.log(` Fetching user context for role: ${role}, userId: ${userId}`);
 
     if (role === "teamOwner") {
       const teams = await Team.find({ createdBy: userId })
@@ -86,7 +86,7 @@ Top Bowlers: ${topBowlers.length > 0 ? topBowlers.map(p => `${p.name} (${p.wicke
         .lean()
         .catch(() => []);
 
-      console.log('🔍 Raw recent matches from database:', JSON.stringify(recentMatches, null, 2));
+      console.log(' Raw recent matches from database:', JSON.stringify(recentMatches, null, 2));
 
 
       const topPlayers = await Player.find({
@@ -101,7 +101,7 @@ Top Bowlers: ${topBowlers.length > 0 ? topBowlers.map(p => `${p.name} (${p.wicke
         .lean()
         .catch(() => []);
 
-      console.log(`📊 Admin stats - Users: ${userCount}, Matches: ${matchCount}, Teams: ${teamCount}`);
+      console.log(` Admin stats - Users: ${userCount}, Matches: ${matchCount}, Teams: ${teamCount}`);
 
       context = `Platform Statistics:
 Total Users: ${userCount}
@@ -144,7 +144,7 @@ Average: ${player.average || 0}`;
     setCachedData(cacheKey, context);
     return context;
   } catch (error) {
-    console.error("❌ Error fetching user context:", error);
+    console.error(" Error fetching user context:", error);
     return `Unable to fetch ${role} data at the moment. Database connection may be unstable.`;
   }
 }
@@ -156,7 +156,7 @@ async function getAppAnalytics() {
 
 
   try {
-    console.log("🔄 Fetching comprehensive app analytics...");
+    console.log(" Fetching comprehensive app analytics...");
 
 
     const today = new Date();
@@ -228,12 +228,12 @@ async function getAppAnalytics() {
       ]).catch(() => [])
     ]);
 
-    console.log(`📈 Analytics fetched - Users: ${totalUsers}, Matches: ${totalMatches}, Live: ${liveMatches.length}`);
+    console.log(` Analytics fetched - Users: ${totalUsers}, Matches: ${totalMatches}, Live: ${liveMatches.length}`);
 
     const analytics = {
       users: {
         total: totalUsers,
-        activeToday: todayMatches.length, // Approximate active users by today's matches
+        activeToday: todayMatches.length, 
         byRole: usersByRole.reduce((acc, item) => {
           acc[item._id] = item.count;
           return acc;
@@ -264,8 +264,8 @@ async function getAppAnalytics() {
               const team1 = match.teams[0];
               const team2 = match.teams[1];
               
-              console.log('🔍 Team1 details:', { team1, type: typeof team1, name: team1?.name });
-              console.log('🔍 Team2 details:', { team2, type: typeof team2, name: team2?.name });
+              console.log('Team1 details:', { team1, type: typeof team1, name: team1?.name });
+              console.log('Team2 details:', { team2, type: typeof team2, name: team2?.name });
               
               if (typeof team1 === 'object' && team1 !== null && team1.name && 
                   typeof team2 === 'object' && team2 !== null && team2.name) {
@@ -296,10 +296,10 @@ async function getAppAnalytics() {
 
           if (teamsDisplay === 'Match' && match.title) {
             teamsDisplay = match.title;
-            console.log('🔄 Falling back to title:', teamsDisplay);
+            console.log(' Falling back to title:', teamsDisplay);
           }
           
-          console.log('🏏 Final teams display:', teamsDisplay);
+          console.log('Final teams display:', teamsDisplay);
           
           return {
             id: match._id,

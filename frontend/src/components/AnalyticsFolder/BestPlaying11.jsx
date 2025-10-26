@@ -1,18 +1,18 @@
-import React from "react";
+
 
 const BestPlaying11 = ({ bestTeam, onGenerateTeam, isGenerating }) => {
   const fieldPositions = [
-    { top: "90%", left: "50%" },  // wicketkeeper
-    { top: "75%", left: "42%" },  // slip 1
-    { top: "75%", left: "58%" },  // slip 2
-    { top: "55%", left: "30%" },  // point
-    { top: "55%", left: "70%" },  // cover
-    { top: "35%", left: "20%" },  // mid-off
-    { top: "35%", left: "80%" },  // mid-on
-    { top: "20%", left: "50%" },  // bowler
-    { top: "10%", left: "30%" },  // long off
-    { top: "10%", left: "70%" },  // long on
-    { top: "5%", left: "50%" },   // extra deep fielder
+    { top: "90%", left: "50%" },  
+    { top: "75%", left: "42%" },  
+    { top: "75%", left: "58%" },  
+    { top: "55%", left: "30%" },  
+    { top: "55%", left: "70%" },  
+    { top: "35%", left: "20%" },  
+    { top: "35%", left: "80%" },  
+    { top: "20%", left: "50%" },  
+    { top: "10%", left: "30%" },  
+    { top: "10%", left: "70%" },  
+    { top: "5%", left: "50%" },   
   ];
 
   return (

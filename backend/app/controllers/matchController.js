@@ -150,11 +150,11 @@ customMatchController.startStream = async (req, res) => {
 
     await match.save();
 
-    console.log(`🎬 Stream started for match ${match._id}`);
-    console.log(`📹 Recording ID: ${recordingId}`);
-    console.log(`🆔 Room ID: ${roomId}`);
-    console.log(`📊 PastStreams count: ${match.pastStreams.length}`);
-    console.log(`🎯 Target format: MP4 for ImageKit compatibility`);
+    console.log(`Stream started for match ${match._id}`);
+    console.log(`Recording ID: ${recordingId}`);
+    console.log(`Room ID: ${roomId}`);
+    console.log(`PastStreams count: ${match.pastStreams.length}`);
+    console.log(`Target format: MP4 for ImageKit compatibility`);
 
 
     try {
@@ -470,17 +470,16 @@ customMatchController.uploadRecording = async (req, res) => {
         };
       }
 
-      // Mark as modified to ensure save works
+
       match.markModified('stream');
       match.markModified('pastStreams');
 
       await match.save();
 
-      console.log(`✅ Database updated successfully for match ${matchId}`);
-      console.log(`🌐 Final streaming URL: ${recordingUrl}`);
-      console.log(`📊 PastStreams count: ${match.pastStreams.length}`);
+      console.log(` Database updated successfully for match ${matchId}`);
+      console.log(` Final streaming URL: ${recordingUrl}`);
+      console.log(` PastStreams count: ${match.pastStreams.length}`);
 
-      // Emit socket event for recording upload completion
       try {
         const io = require('../../index.js').io;
         if (io) {
@@ -513,7 +512,7 @@ customMatchController.uploadRecording = async (req, res) => {
     } catch (uploadError) {
       console.error(' ImageKit upload failed:', uploadError);
       
-      // Update status as failed
+
       if (recordingId) {
         try {
           const streamIndex = match.pastStreams.findIndex(
@@ -531,7 +530,7 @@ customMatchController.uploadRecording = async (req, res) => {
         }
       }
       
-      // Clean up local file if upload failed
+
       try {
         if (req.file && fs.existsSync(req.file.path)) {
           fs.unlinkSync(req.file.path);

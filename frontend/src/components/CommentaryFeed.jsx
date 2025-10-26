@@ -18,7 +18,7 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
   useEffect(() => {
     if (!matchId) return;
 
-    // Fetch existing commentary
+
     const fetchCommentary = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -26,18 +26,18 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // Ensure we have an array and handle potential null/undefined
+
         const commentaryData = Array.isArray(response.data) ? response.data : [];
         setCommentary(commentaryData);
       } catch (error) {
         console.error('Error fetching commentary:', error);
-        setCommentary([]); // Set to empty array on error
+        setCommentary([]); 
       }
     };
 
     fetchCommentary();
 
-    // Socket.IO for live updates
+
     const socket = io('http://localhost:3018');
     socket.emit('join_match', matchId);
 
@@ -76,7 +76,7 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
     return '•';
   };
 
-  // Safe array reversal with fallback
+
   const reversedCommentary = Array.isArray(commentary) 
     ? [...commentary].reverse() 
     : [];
@@ -88,7 +88,7 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
         {isLive && <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs animate-pulse">LIVE</span>}
       </h3>
 
-      {/* AI Insights Banner */}
+
       {aiInsights && (
         <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
           <div className="flex items-center gap-2 mb-2">
@@ -107,7 +107,7 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
         </div>
       )}
 
-      {/* Commentary List */}
+
       <div className="space-y-3">
         {reversedCommentary.length > 0 ? (
           reversedCommentary.map((ball, index) => (

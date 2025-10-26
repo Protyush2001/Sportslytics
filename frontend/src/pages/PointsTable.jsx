@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const PointsTable = () => {
@@ -7,39 +7,8 @@ const PointsTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Get token from localStorage
+
   const token = localStorage.getItem("token");
-
-  // useEffect(() => {
-  //   const fetchPointsTable = async () => {
-  //     try {
-  //       // Fixed API endpoint to match your backend
-  //       const response = await axios.get('http://localhost:3026/api/points-table', {
-  //         headers: { Authorization: `Bearer ${token}` }
-  //       });
-        
-  //       // Defensive check: ensure response is an array
-  //       const data = Array.isArray(response.data) ? response.data : [];
-        
-  //       // Sort teams by points (descending), then by wins
-  //       const sortedTeams = data.sort((a, b) => {
-  //         if (b.points !== a.points) {
-  //           return b.points - a.points;
-  //         }
-  //         return b.wins - a.wins;
-  //       });
-        
-  //       setTeams(sortedTeams);
-  //     } catch (err) {
-  //       console.error('Error fetching points table:', err);
-  //       setError('Failed to load points table');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchPointsTable();
-  // }, [token]);
 
   useEffect(() => {
   const fetchPointsTable = async () => {
@@ -50,14 +19,13 @@ const PointsTable = () => {
 
       console.log("Points table raw data:", response.data);
 
-      // Map and compute values correctly:
       const mappedTeams = response.data.map(team => {
-        // adapt field names based on backend
+
         const name = team.teamName || team.name;
         const wins = team.wins ?? team.won ?? 0;
         const losses = team.losses ?? team.lost ?? 0;
         const matchesPlayed = team.matchesPlayed ?? (wins + losses);
-        const points = team.points ?? wins * 2; // fallback to 2 pts per win
+        const points = team.points ?? wins * 2; 
 
         return {
           name,
@@ -68,7 +36,7 @@ const PointsTable = () => {
         };
       });
 
-      // Sort by points then wins
+  
       const sortedTeams = mappedTeams.sort((a, b) => {
         if (b.points !== a.points) return b.points - a.points;
         return b.wins - a.wins;
@@ -113,7 +81,7 @@ const PointsTable = () => {
     <div className="max-w-6xl mx-auto px-4 py-6">
       <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Tournament Points Table</h2>
       
-      {/* Responsive table container */}
+ 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
@@ -189,7 +157,7 @@ const PointsTable = () => {
         </div>
       </div>
       
-      {/* Legend */}
+
       <div className="mt-6 text-center text-sm text-gray-600">
         <p>Points System: Win = 2 points, Loss = 0 points</p>
       </div>
