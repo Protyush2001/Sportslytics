@@ -1,6 +1,6 @@
 
 
-const imagekit = require('../../config/imagekit');
+const imagekit = require('../../config/imageKit');
 const fs = require('fs');
 const path = require('path');
 
