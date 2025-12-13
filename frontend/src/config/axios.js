@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "http://localhost:3018/",
+    baseURL: "https://sportslytics-2.onrender.com",
     
 })

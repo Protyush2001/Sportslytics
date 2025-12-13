@@ -8,7 +8,7 @@ import CommentaryFeed from "../components/CommentaryFeed";
 import StreamViewer from "../components/StreamViewer";
 import MatchPrediction from "../components/MatchesPrediction"; 
 
-const BASE_URL = "http://localhost:3018/api/matches";
+const BASE_URL = "https://sportslytics-2.onrender.com/api/matches";
 
 // Enhanced Video Player Component
 const EnhancedVideoPlayer = ({ stream, className = "", style = {} }) => {
@@ -43,7 +43,7 @@ const EnhancedVideoPlayer = ({ stream, className = "", style = {} }) => {
       }
     } else {
       const url = stream.recordingUrl.startsWith('/') 
-        ? `http://localhost:3018${stream.recordingUrl}`
+        ? `https://sportslytics-2.onrender.com${stream.recordingUrl}`
         : stream.recordingUrl;
       
       sources.push({

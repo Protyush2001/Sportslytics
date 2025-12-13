@@ -13,7 +13,7 @@ const PointsTable = () => {
   useEffect(() => {
   const fetchPointsTable = async () => {
     try {
-      const response = await axios.get('http://localhost:3018/api/teams/points-table', {
+      const response = await axios.get('https://sportslytics-2.onrender.com/api/teams/points-table', {
         headers: { Authorization: `Bearer ${token}` }
       });
 

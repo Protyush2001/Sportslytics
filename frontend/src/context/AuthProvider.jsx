@@ -160,7 +160,7 @@ export default function AuthProvider(props) {
       
       // Use absolute URL to avoid baseURL issues
       const response = await axios.post("/api/players/login", formData, {
-        baseURL: "http://localhost:3018" 
+        baseURL: "https://sportslytics-2.onrender.com" 
       });
       
       console.log("Player login response:", response.data);

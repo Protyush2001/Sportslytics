@@ -20,7 +20,7 @@ const Teams = () => {
 
   const fetchTeams = async () => {
     try {
-      const res = await axios.get("http://localhost:3018/api/teams", {
+      const res = await axios.get("https://sportslytics-2.onrender.com/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTeams(res.data);
@@ -36,11 +36,11 @@ const Teams = () => {
   const fetchPlayers = async () => {
     try {
       setLoadingPlayers(true);
-      const teamRes = await axios.get("http://localhost:3018/api/teams", {
+      const teamRes = await axios.get("https://sportslytics-2.onrender.com/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const playerRes = await axios.get("http://localhost:3018/api/players/unassigned", {
+      const playerRes = await axios.get("https://sportslytics-2.onrender.com/api/players/unassigned", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -88,7 +88,7 @@ const Teams = () => {
 
     try {
       await axios.post(
-        "http://localhost:3018/api/teams",
+        "https://sportslytics-2.onrender.com/api/teams",
         {
           name: formData.name,
           coach: formData.coach,
@@ -109,7 +109,7 @@ const Teams = () => {
   const handleDelete = async (teamId) => {
     if (window.confirm("Are you sure you want to delete this team?")) {
       try {
-        await axios.delete(`http://localhost:3018/api/teams/${teamId}`, {
+        await axios.delete(`https://sportslytics-2.onrender.com/api/teams/${teamId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeams((prev) => prev.filter((team) => team._id !== teamId));
@@ -122,7 +122,7 @@ const Teams = () => {
   const handleAddPlayerToTeam = async (teamId, playerId) => {
     try {
       const res = await axios.patch(
-        `http://localhost:3018/api/teams/${teamId}/add-player/${playerId}`,
+        `https://sportslytics-2.onrender.com/api/teams/${teamId}/add-player/${playerId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -140,7 +140,7 @@ const Teams = () => {
     if (window.confirm("Remove this player from the team?")) {
       try {
         const res = await axios.patch(
-          `http://localhost:3018/api/teams/${selectedTeam._id}/remove-player/${playerId}`,
+          `https://sportslytics-2.onrender.com/api/teams/${selectedTeam._id}/remove-player/${playerId}`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -156,7 +156,7 @@ const Teams = () => {
     e.preventDefault();
     try {
       await axios.patch(
-        `http://localhost:3018/api/teams/${teamId}/add-players`,
+        `https://sportslytics-2.onrender.com/api/teams/${teamId}/add-players`,
         { players: formData.selectedPlayers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -165,7 +165,7 @@ const Teams = () => {
       setAddModal(false);
       setFormData((prev) => ({ ...prev, selectedPlayers: [] }));
 
-      const updatedTeam = await axios.get(`http://localhost:3018/api/teams/${teamId}`, {
+      const updatedTeam = await axios.get(`https://sportslytics-2.onrender.com/api/teams/${teamId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

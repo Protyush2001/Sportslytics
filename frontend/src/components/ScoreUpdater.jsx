@@ -34,7 +34,7 @@ const ScoreUpdater = ({ match, onScoreUpdated }) => {
       try {
         // If using bulk fetch endpoint
         const res = await axios.post(
-          "http://localhost:3018/api/players/bulk",
+          "https://sportslytics-2.onrender.com/api/players/bulk",
           { ids: [...teamIds, ...opponentIds] },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -100,7 +100,7 @@ const ScoreUpdater = ({ match, onScoreUpdated }) => {
 
     try {
       const res = await axios.patch(
-        `http://localhost:3018/matches/${match._id}/ball`,
+        `https://sportslytics-2.onrender.com/matches/${match._id}/ball`,
         requestData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

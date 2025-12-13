@@ -4,7 +4,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 
-const SIGNALING_URL = 'http://localhost:3018';
+const SIGNALING_URL = 'https://sportslytics-2.onrender.com';
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
 export default function StreamViewer({ match, onMatchUpdate }) {
@@ -31,7 +31,7 @@ export default function StreamViewer({ match, onMatchUpdate }) {
     }
     
     if (stream.recordingUrl.startsWith('/')) {
-      return `http://localhost:3018${stream.recordingUrl}`;
+      return `https://sportslytics-2.onrender.com${stream.recordingUrl}`;
     }
     
     return stream.recordingUrl;

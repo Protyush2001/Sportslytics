@@ -16,7 +16,7 @@ const MatchPerformance = ({ playerId, playerName }) => {
       setError('');
       
       
-      const response = await axios.get(`http://localhost:3026/api/players/${playerId}/match-performance`, {
+      const response = await axios.get(`https://sportslytics-2.onrender.com/api/players/${playerId}/match-performance`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

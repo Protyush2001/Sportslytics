@@ -28,12 +28,12 @@ const [showPending, setShowPending] = useState(false);
   if (!newRole) return;
 
   try {
-    await axios.patch(`http://localhost:3018/admin/user/${userId}`, { role: newRole }, {
+    await axios.patch(`https://sportslytics-2.onrender.com/admin/user/${userId}`, { role: newRole }, {
       headers: { Authorization: `Bearer ${token}` },
     });
     alert("User role updated successfully");
  
-    const res = await axios.get("http://localhost:3018/admin/users", {
+    const res = await axios.get("https://sportslytics-2.onrender.com/admin/users", {
       headers: { Authorization: `Bearer ${token}` },
     });
     setUsers(res.data);
@@ -47,11 +47,11 @@ const handleControlMatch = async (matchId) => {
   const action = prompt("Enter action: 'delete' or 'update-status'");
   if (action === "delete") {
     try {
-      await axios.delete(`http://localhost:3018/admin/matches/${matchId}`, {
+      await axios.delete(`https://sportslytics-2.onrender.com/admin/matches/${matchId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Match deleted");
-      const res = await axios.get("http://localhost:3018/admin/matches", {
+      const res = await axios.get("https://sportslytics-2.onrender.com/admin/matches", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMatches(res.data);
@@ -63,11 +63,11 @@ const handleControlMatch = async (matchId) => {
     const newStatus = prompt("Enter new status (Upcoming, Live, Completed):");
     if (!newStatus) return;
     try {
-      await axios.patch(`http://localhost:3018/matches/${matchId}`, { status: newStatus }, {
+      await axios.patch(`https://sportslytics-2.onrender.com/matches/${matchId}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Match status updated");
-      const res = await axios.get("http://localhost:3018/admin/matches", {
+      const res = await axios.get("https://sportslytics-2.onrender.com/admin/matches", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMatches(res.data);
@@ -81,7 +81,7 @@ const handleControlMatch = async (matchId) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:3018/admin/stats", {
+        const res = await axios.get("https://sportslytics-2.onrender.com/admin/stats", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setStats(res.data);
@@ -93,14 +93,14 @@ const handleControlMatch = async (matchId) => {
       const fetchDetails = async () => {
       try {
         const [userRes, matchRes] = await Promise.all([
-          axios.get("http://localhost:3018/admin/users", {
+          axios.get("https://sportslytics-2.onrender.com/admin/users", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:3018/admin/matches", {
+          axios.get("https://sportslytics-2.onrender.com/admin/matches", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        const pendingRes = await axios.get("http://localhost:3018/admin/pending-users", {
+        const pendingRes = await axios.get("https://sportslytics-2.onrender.com/admin/pending-users", {
   headers: { Authorization: `Bearer ${token}` },
 });
 setPendingUsers(pendingRes.data);
@@ -118,7 +118,7 @@ setPendingUsers(pendingRes.data);
 
   const handleApproveUser = async (userId) => {
   try {
-    await axios.patch(`http://localhost:3018/admin/approve-user/${userId}`, {}, {
+    await axios.patch(`https://sportslytics-2.onrender.com/admin/approve-user/${userId}`, {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     toast.success("User approved");
@@ -131,7 +131,7 @@ setPendingUsers(pendingRes.data);
 
 const handleRejectUser = async (userId) => {
   try {
-    await axios.patch(`http://localhost:3018/admin/reject-user/${userId}`, {}, {
+    await axios.patch(`https://sportslytics-2.onrender.com/admin/reject-user/${userId}`, {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     toast.info("User rejected");

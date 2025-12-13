@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 
 // Initialize socket connection with enhanced configuration
-const socket = io("http://localhost:3018", {
+const socket = io("https://sportslytics-2.onrender.com", {
   transports: ['polling', 'websocket'], // Start with polling for stability
   timeout: 20000,
   forceNew: true,

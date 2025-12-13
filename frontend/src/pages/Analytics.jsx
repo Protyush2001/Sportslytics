@@ -12,7 +12,7 @@ import TeamComposition from "../components/AnalyticsFolder/TeamComposition";
 import QuickStats from "../components/AnalyticsFolder/QuickStats";
 import MatchPerformance from "../components/AnalyticsFolder/MatchPerformance";
 
-const API_BASE = "http://localhost:3018/api/players";
+const API_BASE = "https://sportslytics-2.onrender.com/api/players";
 
 const Analytics = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,7 +58,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get('http://localhost:3018/api/teams', {
+        const response = await axios.get('https://sportslytics-2.onrender.com/api/teams', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setTeams(response.data);

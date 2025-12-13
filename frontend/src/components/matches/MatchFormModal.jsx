@@ -25,7 +25,7 @@ const MatchFormModal = ({ isOpen, onClose, onMatchCreated }) => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const res = await axios.get("http://localhost:3018/api/teams", {
+        const res = await axios.get("https://sportslytics-2.onrender.com/api/teams", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeams(res.data || []);
@@ -41,7 +41,7 @@ const MatchFormModal = ({ isOpen, onClose, onMatchCreated }) => {
     if (!team1) return;
     const fetchPlayers = async () => {
       try {
-        const res = await axios.get(`http://localhost:3018/api/teams/${team1}`, {
+        const res = await axios.get(`https://sportslytics-2.onrender.com/api/teams/${team1}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeam1Players(res.data.players || []);
@@ -58,7 +58,7 @@ const MatchFormModal = ({ isOpen, onClose, onMatchCreated }) => {
     if (!team2) return;
     const fetchPlayers = async () => {
       try {
-        const res = await axios.get(`http://localhost:3018/api/teams/${team2}`, {
+        const res = await axios.get(`https://sportslytics-2.onrender.com/api/teams/${team2}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTeam2Players(res.data.players || []);
@@ -140,7 +140,7 @@ const MatchFormModal = ({ isOpen, onClose, onMatchCreated }) => {
     };
 
     try {
-      const res = await axios.post("http://localhost:3018/matches", matchData, {
+      const res = await axios.post("https://sportslytics-2.onrender.com/matches", matchData, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
       alert("Match created successfully!");

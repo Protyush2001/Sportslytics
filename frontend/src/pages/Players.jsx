@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import PlayerCard from "../components/PlayerCard";
 import axios from "axios";
 
-const API_BASE = "http://localhost:3018/api/players";
+const API_BASE = "https://sportslytics-2.onrender.com/api/players";
 
 const Players = () => {
   const navigate = useNavigate();

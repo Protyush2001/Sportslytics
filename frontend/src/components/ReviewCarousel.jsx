@@ -54,7 +54,7 @@ const ReviewCarousel = () => {
  const handleAddReview = async () => {
   if (newReview.name && newReview.text) {
     try {
-      const response = await fetch('http://localhost:3018/api/reviews', {
+      const response = await fetch('https://sportslytics-2.onrender.com/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

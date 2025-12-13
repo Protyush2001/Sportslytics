@@ -31,7 +31,7 @@ export default function PlayerDashboard() {
     const fetchPlayer = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3018/api/players/me/${userId}`,
+          `https://sportslytics-2.onrender.com/api/players/me/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

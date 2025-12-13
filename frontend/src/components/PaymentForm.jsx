@@ -29,7 +29,7 @@ export default function PaymentForm({ role, onPaymentSuccess }) {
   }
 
   const { data } = await axios.post(
-    "http://localhost:3018/api/payment/create-payment",
+    "https://sportslytics-2.onrender.com/api/payment/create-payment",
     { role }
   );
 

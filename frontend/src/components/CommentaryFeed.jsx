@@ -22,7 +22,7 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
     const fetchCommentary = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:3018/api/matches/${matchId}/commentary`, {
+        const response = await axios.get(`https://sportslytics-2.onrender.com/api/matches/${matchId}/commentary`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -38,7 +38,7 @@ const CommentaryFeed = ({ matchId, isLive = true }) => {
     fetchCommentary();
 
 
-    const socket = io('http://localhost:3018');
+    const socket = io('https://sportslytics-2.onrender.com');
     socket.emit('join_match', matchId);
 
     socket.on('ball_update', (data) => {
