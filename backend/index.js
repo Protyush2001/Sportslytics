@@ -59,9 +59,7 @@ const upload = multer({
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      '*'
-    ],
+    origin: ['*'],
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   },
   transports: ["polling", "websocket"],
