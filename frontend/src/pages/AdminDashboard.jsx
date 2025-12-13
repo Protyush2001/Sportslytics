@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUsers, FaChartLine, FaCalendarAlt,FaUserEdit,FaGamepad, FaShieldAlt } from "react-icons/fa";
+import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -15,6 +16,8 @@ const AdminDashboard = () => {
   const [matches, setMatches] = useState([]); 
   const [showUsers, setShowUsers] = useState(false);
 const [showMatches, setShowMatches] = useState(false);
+const [pendingUsers, setPendingUsers] = useState([]);
+const [showPending, setShowPending] = useState(false);
 
 
 
@@ -97,6 +100,10 @@ const handleControlMatch = async (matchId) => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
+        const pendingRes = await axios.get("http://localhost:3018/admin/pending-users", {
+  headers: { Authorization: `Bearer ${token}` },
+});
+setPendingUsers(pendingRes.data);
         setUsers(userRes.data);
         setMatches(matchRes.data);
       } catch (err) {
@@ -108,6 +115,32 @@ const handleControlMatch = async (matchId) => {
     fetchStats();
     fetchDetails();
   }, [token]);
+
+  const handleApproveUser = async (userId) => {
+  try {
+    await axios.patch(`http://localhost:3018/admin/approve-user/${userId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    toast.success("User approved");
+    setPendingUsers(pendingUsers.filter(u => u._id !== userId));
+  } catch (err) {
+    console.error("Approval failed:", err);
+    toast.error("Failed to approve user");
+  }
+};
+
+const handleRejectUser = async (userId) => {
+  try {
+    await axios.patch(`http://localhost:3018/admin/reject-user/${userId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    toast.info("User rejected");
+    setPendingUsers(pendingUsers.filter(u => u._id !== userId));
+  } catch (err) {
+    console.error("Rejection failed:", err);
+    toast.error("Failed to reject user");
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -189,6 +222,39 @@ const handleControlMatch = async (matchId) => {
       </ul>
     )}
   </ManagementPanel>
+
+  {/* <ManagementPanel title="Team Owner Approvals" description="Approve or reject pending team owner requests.">
+  <button
+    onClick={() => setShowPending(!showPending)}
+    className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition"
+  >
+    {showPending ? "Hide Requests" : "Review Requests"}
+  </button>
+
+  {showPending && (
+    <ul className="mt-4 text-sm text-gray-700 space-y-2">
+      {pendingUsers.map((user) => (
+        <li key={user._id} className="flex justify-between items-center">
+          <span>{user.username} (requested: {user.requestedRole})</span>
+          <div className="space-x-2">
+            <button
+              onClick={() => handleApproveUser(user._id)}
+              className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+            >
+              Approve
+            </button>
+            <button
+              onClick={() => handleRejectUser(user._id)}
+              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+            >
+              Reject
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</ManagementPanel> */}
 
       </div>
 

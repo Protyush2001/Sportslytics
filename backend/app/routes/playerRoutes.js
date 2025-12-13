@@ -95,7 +95,7 @@ router.post('/login', async (req, res) => {
 
     const player = await Player.findOne({ email: cleanEmail });
 
-    console.log("📊 Player found:", player ? `Yes - ${player.name}` : "No");
+    console.log(" Player found:", player ? `Yes - ${player.name}` : "No");
 
     if (!player) {
       return res.status(401).json({ error: "Invalid email or date of birth" });

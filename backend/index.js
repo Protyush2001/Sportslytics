@@ -135,6 +135,9 @@ app.use('/admin', adminRoutes);
 
 app.post('/register', userController.register);
 app.post('/login', userController.login);
+app.get('/admin/pending-users', authenticateUser, userController.getPendingUsers);
+app.patch('/admin/approve-user/:userId', authenticateUser, userController.approveUser);
+app.patch('/admin/reject-user/:userId', authenticateUser, userController.rejectUser);
 
 
 app.post('/matches', authenticateUser, customMatchController.createMatches);

@@ -4,6 +4,7 @@ import { useContext, useEffect, useReducer, useRef } from "react";
 import UserContext from "./UserContext.js";
 import axios from "../config/axios.js";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const userReducer = (state, action) => {
   switch (action.type) {
@@ -99,14 +100,16 @@ export default function AuthProvider(props) {
   const handleLogout = () => {
     localStorage.clear();
     dispatch({ type: "LOGOUT" });
-    alert("Logout Successfully");
+    toast.info("Logout Successfully");
+
     navigate("/login", { replace: true });
   };
 
   const handleRegister = async (formData, resetForm) => {
     try {
       const response = await axios.post("/register", formData);
-      alert("Successfully registered");
+      toast.success("Successfully registered");
+
       resetForm();
       navigate("/login");
     } catch (err) {
@@ -135,7 +138,8 @@ export default function AuthProvider(props) {
         payload: { user, role } 
       });
       resetForm();
-      alert("Successfully logged in");
+      toast.success("Successfully logged in");
+
 
       if (role === "admin") navigate("/admin");
       else if (role === "player") navigate("/players"); // Fixed navigation

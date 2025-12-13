@@ -143,7 +143,7 @@ const customMatchSchema = new mongoose.Schema({
     roomId: { type: String, default: null },
     startedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     startedAt: { type: Date, default: null },
-    // Additional fields for recording support
+    
     recordingStatus: { 
       type: String, 
       enum: ['not_started', 'recording', 'stopping', 'processing', 'completed', 'failed'], 

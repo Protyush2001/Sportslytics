@@ -925,7 +925,7 @@ Return JSON:
     const response = result.response.text();
     const prediction = parseAIResponse(response);
     
-    // ✅ ADD THIS: Add team information to the prediction
+    //ADD THIS: Add team information to the prediction
     prediction.batting_team = battingTeam;
     prediction.bowling_team = bowlingTeam;
     
@@ -1040,19 +1040,7 @@ Return this exact JSON structure:
   }
 }
 
-// Also update the helper function to handle the corrected calculation
-// function calculateRequiredRunRate(match) {
-//   if (match.inningsScores.length > 0 && match.currentScore.innings === 2) {
-//     const target = match.inningsScores[0].runs + 1;
-//     const runsNeeded = target - match.currentScore.runs;
-//     const ballsRemaining = (match.overs * 6) - (match.currentScore.overs * 6 + match.currentScore.balls);
-    
-//     if (ballsRemaining > 0 && runsNeeded > 0) {
-//       return parseFloat(((runsNeeded / ballsRemaining) * 6).toFixed(2));
-//     }
-//   }
-//   return null;
-// }
+
 
 function calculateRequiredRunRate(match) {
   const currentInnings = match.currentScore;

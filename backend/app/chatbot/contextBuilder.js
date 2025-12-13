@@ -503,7 +503,7 @@ async function getTodayMatches() {
 function clearCache() {
   cache.data = {};
   cache.timestamp = {};
-  console.log("🗑️ Cache cleared manually");
+  console.log(" Cache cleared manually");
 }
 
 module.exports = { 

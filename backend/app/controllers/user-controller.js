@@ -105,4 +105,50 @@ userController.login = async (req, res) => {
     }
 };
 
+userController.getPendingUsers = async (req, res) => {
+  try {
+    const pendingUsers = await User.find({ status: 'pending' });
+    res.status(200).json(pendingUsers);
+  } catch (err) {
+    console.error("Error fetching pending users:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+userController.approveUser = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.status = 'approved';
+    await user.save();
+
+    res.status(200).json({ message: "User approved successfully", user });
+  } catch (err) {
+    console.error("Error approving user:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+userController.rejectUser = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.status = 'rejected';
+    await user.save();
+
+    res.status(200).json({ message: "User rejected successfully", user });
+  } catch (err) {
+    console.error("Error rejecting user:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = userController;

@@ -19,6 +19,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 // import Profile from "./pages/Profile";
 import PointsTable from "./pages/PointsTable";
 import PlayerDashboard from "./pages/PlayerDashboard"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
@@ -80,6 +83,8 @@ function App() {
             </Routes>
           </div>
           <Footer />
+          <ToastContainer position="top-right" autoClose={3000} />
+
         </>
       </AuthProvider>
       <ChatBotLauncher />

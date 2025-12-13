@@ -409,7 +409,7 @@ customMatchController.uploadRecording = async (req, res) => {
         }
       }
       
-      // If not found by recordingId, look for an existing pastStream without recordingUrl
+
       if (!updatedExisting) {
         for (let i = match.pastStreams.length - 1; i >= 0; i--) {
           if (!match.pastStreams[i].recordingUrl || match.pastStreams[i].uploadStatus !== 'completed') {
