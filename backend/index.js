@@ -24,6 +24,12 @@ const customMatch = require('./app/models/customMatch-model');
 const reviewCtlr = require('./app/controllers/reviewController');
 
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://sportslytics.vercel.app"
+];
+
 const server = http.createServer(app);
 const uploadsDir = path.join(__dirname, 'uploads/Recordings/');
 if (!fs.existsSync(uploadsDir)) {
@@ -59,7 +65,8 @@ const upload = multer({
 
 const io = new Server(server, {
   cors: {
-    origin: ['*'],
+    // origin: ['*'],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   },
   transports: ["polling", "websocket"],
@@ -71,7 +78,26 @@ const io = new Server(server, {
 const port = process.env.PORT || 3000;
 
 
-app.use(cors({ origin: "*" }));
+// app.use(cors({ origin: "*" }));
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow REST tools like Postman or curl (no origin)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
+// app.options("*", cors());
+
 app.use(express.json());
 configDB();
 
