@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 async function connectDB() {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/sports', {
+        await mongoose.connect('mongodb+srv://deyprotyush_db_user:nDwcg9tgxxokwPAt@sportslytics.ydxuycy.mongodb.net/?appName=Sportslytics', {
            
         });
         console.log("MongoDB connected to:",mongoose.connection.name);
