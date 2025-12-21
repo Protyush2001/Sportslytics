@@ -1,27 +1,130 @@
+// import { Link, useNavigate } from "react-router-dom";
+// import { FaSignOutAlt } from "react-icons/fa";
+// import { useState, useEffect, useRef, useContext } from "react";
+// import UserContext from "../context/UserContext";
+
+// const Navbar = () => {
+//   const navigate = useNavigate();
+//   const { user, isLoggedIn,handleLogout } = useContext(UserContext);
+//   const [showDropdown, setShowDropdown] = useState(false);
+//   const dropdownRef = useRef(null);
+
+//   const role = localStorage.getItem("role"); 
+
+//   // const handleLogout = () => {
+//   //   localStorage.clear(); 
+//   //   navigate("/login");
+//   // };
+
+//   const getInitials = (username) => {
+//     if (!username || typeof username !== "string") return "U";
+//     const parts = username.trim().split(/\s+/);
+//     const first = parts[0]?.[0] || "";
+//     const last = parts[1]?.[0] || "";
+//     return (first + last).toUpperCase() || "U";
+//   };
+
+//   useEffect(() => {
+//     const handleClickOutside = (e) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+//         setShowDropdown(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   return (
+//     <nav className="bg-white shadow-md sticky top-0 z-50 w-full">
+//       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-0">
+//         <div className="flex justify-between items-center h-16">
+//           <Link to="/" className="text-2xl font-bold text-blue-700 tracking-tight">
+//             Cricket Analytics 🏏
+//           </Link>
+
+//           <div className="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
+//             <Link to="/" className="hover:text-blue-600 transition">Home</Link>
+//             <Link to="/matches" className="hover:text-blue-600 transition">Matches</Link>
+//             <Link to="/players" className="hover:text-blue-600 transition">Players</Link>
+//             <Link to="/teams" className="hover:text-blue-600 transition">Teams</Link>
+//             <Link to="/analytics" className="hover:text-blue-600 transition">Analytics</Link>
+//           </div>
+
+//           <div className="flex items-center space-x-4">
+//             {!isLoggedIn ? (
+//               <>
+//                 <Link to="/login" className="px-3 py-1.5 bg-gray-100 text-sm rounded-md hover:bg-gray-200 transition">
+//                   Login
+//                 </Link>
+//                 <Link to="/register" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition">
+//                   Signup
+//                 </Link>
+//               </>
+//             ) : (
+//               <div className="flex items-center space-x-4 relative">
+//                 <div
+//                   className="bg-blue-600 text-white rounded-full w-9 h-9 flex items-center justify-center font-semibold text-sm hover:bg-blue-700 transition"
+//                   title={user?.username}
+//                   onClick={() => setShowDropdown((prev) => !prev)}
+//                 >
+//                   {getInitials(user?.username)}
+//                 </div>
+
+//                 {role === "admin" && showDropdown && (
+//                   <div ref={dropdownRef} className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+//                     <button
+//                       className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+//                       onClick={() => navigate("/admin")}
+//                     >
+//                       Dashboard
+//                     </button>
+//                     <button
+//                       className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+//                       onClick={() => navigate("/profile")}
+//                     >
+//                       Profile
+//                     </button>
+//                   </div>
+//                 )}
+
+//                 <button
+//                   onClick={handleLogout}
+//                   className="text-red-500 hover:text-red-700 text-xl transition"
+//                   title="Logout"
+//                 >
+//                   <FaSignOutAlt />
+//                 </button>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </nav>
+//   );
+// };
+
+// export default Navbar;
+
+
 import { Link, useNavigate } from "react-router-dom";
-import { FaSignOutAlt } from "react-icons/fa";
+import { FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
 import { useState, useEffect, useRef, useContext } from "react";
 import UserContext from "../context/UserContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, isLoggedIn,handleLogout } = useContext(UserContext);
+  const { user, isLoggedIn, handleLogout } = useContext(UserContext);
+
   const [showDropdown, setShowDropdown] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+
   const dropdownRef = useRef(null);
-
-  const role = localStorage.getItem("role"); 
-
-  // const handleLogout = () => {
-  //   localStorage.clear(); 
-  //   navigate("/login");
-  // };
+  const role = localStorage.getItem("role");
 
   const getInitials = (username) => {
     if (!username || typeof username !== "string") return "U";
     const parts = username.trim().split(/\s+/);
-    const first = parts[0]?.[0] || "";
-    const last = parts[1]?.[0] || "";
-    return (first + last).toUpperCase() || "U";
+    return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
   };
 
   useEffect(() => {
@@ -34,52 +137,67 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const NavLinks = ({ mobile = false }) => (
+    <>
+      {["/", "/matches", "/players", "/teams", "/analytics"].map((path, i) => (
+        <Link
+          key={i}
+          to={path}
+          onClick={() => mobile && setMobileMenu(false)}
+          className="block py-2 text-gray-700 hover:text-blue-600 transition"
+        >
+          {path === "/" ? "Home" : path.slice(1).charAt(0).toUpperCase() + path.slice(2)}
+        </Link>
+      ))}
+    </>
+  );
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50 w-full">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-0">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-2xl font-bold text-blue-700 tracking-tight">
+          <Link to="/" className="text-2xl font-bold text-blue-700">
             Cricket Analytics 🏏
           </Link>
 
-          <div className="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
-            <Link to="/" className="hover:text-blue-600 transition">Home</Link>
-            <Link to="/matches" className="hover:text-blue-600 transition">Matches</Link>
-            <Link to="/players" className="hover:text-blue-600 transition">Players</Link>
-            <Link to="/teams" className="hover:text-blue-600 transition">Teams</Link>
-            <Link to="/analytics" className="hover:text-blue-600 transition">Analytics</Link>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex space-x-6 text-sm font-medium">
+            <NavLinks />
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Desktop Auth */}
+          <div className="hidden md:flex items-center space-x-4">
             {!isLoggedIn ? (
               <>
-                <Link to="/login" className="px-3 py-1.5 bg-gray-100 text-sm rounded-md hover:bg-gray-200 transition">
+                <Link to="/login" className="px-3 py-1.5 bg-gray-100 rounded-md">
                   Login
                 </Link>
-                <Link to="/register" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition">
+                <Link to="/register" className="px-3 py-1.5 bg-blue-600 text-white rounded-md">
                   Signup
                 </Link>
               </>
             ) : (
-              <div className="flex items-center space-x-4 relative">
+              <div className="flex items-center space-x-3 relative">
                 <div
-                  className="bg-blue-600 text-white rounded-full w-9 h-9 flex items-center justify-center font-semibold text-sm hover:bg-blue-700 transition"
-                  title={user?.username}
-                  onClick={() => setShowDropdown((prev) => !prev)}
+                  className="bg-blue-600 text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
+                  onClick={() => setShowDropdown(!showDropdown)}
                 >
                   {getInitials(user?.username)}
                 </div>
 
                 {role === "admin" && showDropdown && (
-                  <div ref={dropdownRef} className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                  <div
+                    ref={dropdownRef}
+                    className="absolute right-0 top-12 w-40 bg-white border rounded shadow"
+                  >
                     <button
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
                       onClick={() => navigate("/admin")}
                     >
                       Dashboard
                     </button>
                     <button
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
                       onClick={() => navigate("/profile")}
                     >
                       Profile
@@ -87,18 +205,47 @@ const Navbar = () => {
                   </div>
                 )}
 
-                <button
-                  onClick={handleLogout}
-                  className="text-red-500 hover:text-red-700 text-xl transition"
-                  title="Logout"
-                >
+                <button onClick={handleLogout} className="text-red-500 text-xl">
                   <FaSignOutAlt />
                 </button>
               </div>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-2xl"
+            onClick={() => setMobileMenu(!mobileMenu)}
+          >
+            {mobileMenu ? <FaTimes /> : <FaBars />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenu && (
+        <div className="md:hidden bg-white border-t px-4 pb-4">
+          <NavLinks mobile />
+
+          {!isLoggedIn ? (
+            <div className="mt-4 space-y-2">
+              <Link to="/login" className="block w-full text-center bg-gray-100 py-2 rounded">
+                Login
+              </Link>
+              <Link to="/register" className="block w-full text-center bg-blue-600 text-white py-2 rounded">
+                Signup
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-4 flex justify-between items-center">
+              <span className="font-medium">{user?.username}</span>
+              <button onClick={handleLogout} className="text-red-500 text-xl">
+                <FaSignOutAlt />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
