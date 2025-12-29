@@ -43,4 +43,4 @@ coverage/
 
 
 
-.env
+backend/.env
